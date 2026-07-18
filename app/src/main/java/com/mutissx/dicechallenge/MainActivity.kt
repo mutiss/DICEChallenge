@@ -1,7 +1,9 @@
 package com.mutissx.dicechallenge
 
+import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +18,10 @@ import com.mutissx.dicechallenge.ui.theme.DICEChallengeTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(TRANSPARENT)
+        )
         setContent {
             DICEChallengeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
