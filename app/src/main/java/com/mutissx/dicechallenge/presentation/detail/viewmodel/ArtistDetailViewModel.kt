@@ -9,20 +9,26 @@ import com.mutissx.dicechallenge.core.ui.UiText
 import com.mutissx.dicechallenge.core.ui.extensions.asUiText
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
+import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
+import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailUiState
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ArtistDetailViewModel(
     savedStateHandle: SavedStateHandle,
     private val getArtistDetailUseCase: GetArtistDetailUseCase,
     private val getReleaseGroupsUseCase: GetArtistReleaseGroupsUseCase,
-) : ViewModel() {
+    private val toggleFavorite: ToggleFavoriteUseCase,
+    isFavoriteUseCase: IsFavoriteUseCase
+    ) : ViewModel() {
 
     private val mbid: String = requireNotNull(savedStateHandle[Destination.ArtistDetail.ARG_MBID]) {
         "mbid missing from arguments"
@@ -30,6 +36,9 @@ class ArtistDetailViewModel(
 
     private val _uiState = MutableStateFlow<ArtistDetailUiState>(ArtistDetailUiState.Loading)
     val uiState: StateFlow<ArtistDetailUiState> = _uiState.asStateFlow()
+
+    val isFavorite: StateFlow<Boolean> = isFavoriteUseCase(mbid)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     init {
         loadInfo()
@@ -61,6 +70,14 @@ class ArtistDetailViewModel(
 
                 else -> ArtistDetailUiState.Error(UiText.StringResource(R.string.unknown_error))
             }
+        }
+    }
+
+    fun onFavoriteToggle() {
+        val current = _uiState.value as? ArtistDetailUiState.Content ?: return
+        val isFav = isFavorite.value
+        viewModelScope.launch {
+            toggleFavorite(current.artist, isFav)
         }
     }
 }

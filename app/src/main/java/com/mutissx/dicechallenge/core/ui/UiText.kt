@@ -6,7 +6,7 @@ import androidx.compose.ui.res.stringResource
 
 sealed interface UiText {
     data class DynamicString(val value: String) : UiText
-    class StringResource(@StringRes val resId: Int, vararg val args: Any) : UiText
+    class StringResource(@field:StringRes val resId: Int, vararg val args: Any) : UiText
 
     @Composable
     fun asString(): String {

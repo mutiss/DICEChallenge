@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailScreen
 import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
+import com.mutissx.dicechallenge.presentation.favorites.screen.FavoritesScreen
+import com.mutissx.dicechallenge.presentation.favorites.viewmodel.FavoritesViewModel
 import com.mutissx.dicechallenge.presentation.search.screen.SearchScreen
 import com.mutissx.dicechallenge.presentation.search.viewmodel.SearchViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -33,7 +35,14 @@ fun AppNavHost(
             )
         }
         composable(Destination.Favorites.route) {
-
+            val viewModel: FavoritesViewModel = koinViewModel()
+            FavoritesScreen(
+                innerPadding = innerPadding,
+                onArtistClick = { mbid ->
+                    navController.navigate(Destination.ArtistDetail.createRoute(mbid))
+                },
+                viewModel = viewModel
+            )
         }
         composable(
             route = Destination.ArtistDetail.route,
