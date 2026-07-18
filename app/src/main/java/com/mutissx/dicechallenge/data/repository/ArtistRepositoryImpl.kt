@@ -11,11 +11,14 @@ import com.mutissx.dicechallenge.core.domain.DataError
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.repository.ArtistRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import com.mutissx.dicechallenge.core.domain.Result
 
 class ArtistRepositoryImpl(
-    private val api: MusicBrainzApi
+    private val api: MusicBrainzApi,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ArtistRepository {
 
     override fun searchArtists(query: String): Flow<PagingData<Artist>> =
@@ -25,14 +28,14 @@ class ArtistRepositoryImpl(
                 initialLoadSize = ArtistSearchPagingSource.PAGE_SIZE,
                 enablePlaceholders = false
             ),
-            pagingSourceFactory = { ArtistSearchPagingSource(api, query) }
+            pagingSourceFactory = { ArtistSearchPagingSource(api, query, dispatcher) }
         ).flow
 
     override suspend fun getArtist(mbid: String): Result<Artist, DataError.Network> =
-        safeApiCall { api.getArtist(mbid).toDomain() }
+        safeApiCall(dispatcher) { api.getArtist(mbid).toDomain() }
 
     override suspend fun getReleaseGroups(mbid: String): Result<List<ReleaseGroup>, DataError.Network> =
-        safeApiCall {
+        safeApiCall(dispatcher) {
             api.getReleaseGroups(artistMbid = mbid)
                 .releaseGroups
                 .map { it.toDomain() }
