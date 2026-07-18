@@ -2,6 +2,7 @@ package com.mutissx.dicechallenge
 
 import android.app.Application
 import com.mutissx.dicechallenge.di.dataModule
+import com.mutissx.dicechallenge.di.databaseModule
 import com.mutissx.dicechallenge.di.domainModule
 import com.mutissx.dicechallenge.di.networkModule
 import com.mutissx.dicechallenge.di.presentationlModule
@@ -18,6 +19,7 @@ class DiceChallengeApp : Application() {
             androidContext(this@DiceChallengeApp)
             modules(
                 dataModule,
+                databaseModule,
                 domainModule,
                 networkModule,
                 presentationlModule

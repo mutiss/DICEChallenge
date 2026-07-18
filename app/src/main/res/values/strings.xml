@@ -14,6 +14,11 @@
     <string name="detail_empty_albums">No albums found for this artist.</string>
     <string name="artist_country_label">Country: %1$s</string>
     <string name="artist_disambiguation_label">Information: %1$s</string>
+    <string name="add_to_favorites_description">Add to favorites</string>
+    <string name="remove_from_favorites_description">Remove from favorites</string>
+    <string name="favorite_added">%1$s added to favorites</string>
+    <string name="favorite_removed">%1$s removed from favorites</string>
+    <string name="favorites_empty">No favorites yet. Search for an artist and tap the heart to add one.</string>
 
     <string name="timed_out">The request timed out</string>
     <string name="no_internet">Couldn\'t reach server. Check your internet connection.</string>

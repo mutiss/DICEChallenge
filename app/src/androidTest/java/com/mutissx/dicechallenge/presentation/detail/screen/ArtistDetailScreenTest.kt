@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -15,10 +16,14 @@ import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
+import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
+import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.fake.FakeArtistRepository
+import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
 import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
 import com.mutissx.dicechallenge.presentation.navigation.Destination
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -33,11 +38,13 @@ class ArtistDetailScreenTest {
 
     private val mbid = "artist-123"
     private lateinit var fakeRepository: FakeArtistRepository
+    private lateinit var fakeFavoritesRepository: FakeFavoritesRepository
     private var backClicked = false
 
     @Before
     fun setUp() {
         fakeRepository = FakeArtistRepository()
+        fakeFavoritesRepository = FakeFavoritesRepository()
         backClicked = false
     }
 
@@ -56,7 +63,9 @@ class ArtistDetailScreenTest {
         val viewModel = ArtistDetailViewModel(
             savedStateHandle = SavedStateHandle(mapOf(Destination.ArtistDetail.ARG_MBID to mbid)),
             getArtistDetailUseCase = GetArtistDetailUseCase(fakeRepository),
-            getReleaseGroupsUseCase = GetArtistReleaseGroupsUseCase(fakeRepository)
+            getReleaseGroupsUseCase = GetArtistReleaseGroupsUseCase(fakeRepository),
+            toggleFavorite = ToggleFavoriteUseCase(fakeFavoritesRepository),
+            isFavoriteUseCase = IsFavoriteUseCase(fakeFavoritesRepository)
         )
         composeTestRule.setContent {
             ArtistDetailScreen(onBack = { backClicked = true }, viewModel = viewModel)
@@ -66,6 +75,12 @@ class ArtistDetailScreenTest {
     private fun waitForTag(tag: String, timeoutMillis: Long = 5_000L) {
         composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
             composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    private fun waitForText(text: String, timeoutMillis: Long = 5_000L) {
+        composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
+            composeTestRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -134,5 +149,35 @@ class ArtistDetailScreenTest {
         composeTestRule.onNodeWithTag(TestTags.DETAIL_BACK_BUTTON).performClick()
 
         Assert.assertTrue(backClicked)
+    }
+
+    @Test
+    fun given_content_displayed_and_not_favorite_when_favorite_button_is_clicked_then_added_snackbar_is_displayed() {
+        fakeRepository.artistResult = Result.Success(artist())
+        fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+
+        setContent()
+        waitForTag(TestTags.DETAIL_FAVORITE_BUTTON)
+
+        composeTestRule.onNodeWithTag(TestTags.DETAIL_FAVORITE_BUTTON).performClick()
+        waitForText("Radiohead added to favorites")
+
+        composeTestRule.onNodeWithText("Radiohead added to favorites").assertIsDisplayed()
+    }
+
+    @Test
+    fun given_content_displayed_and_already_favorite_when_favorite_button_is_clicked_then_removed_snackbar_is_displayed() {
+        val target = artist()
+        fakeRepository.artistResult = Result.Success(target)
+        fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+        runBlocking { fakeFavoritesRepository.add(target) }
+
+        setContent()
+        waitForTag(TestTags.DETAIL_FAVORITE_BUTTON)
+
+        composeTestRule.onNodeWithTag(TestTags.DETAIL_FAVORITE_BUTTON).performClick()
+        waitForText("Radiohead removed from favorites")
+
+        composeTestRule.onNodeWithText("Radiohead removed from favorites").assertIsDisplayed()
     }
 }
