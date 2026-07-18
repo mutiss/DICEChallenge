@@ -99,4 +99,24 @@ class FavoritesViewModelTest {
             // Then
             assertTrue(viewModel.uiState.value.favorites.isEmpty())
         }
+
+    @Test
+    fun `given the repository read fails, when uiState is collected, then it emits a non-loading error state instead of crashing`() =
+        runTest {
+            // Given — a separate repository/viewModel instance so readError is set before uiState's pipeline is built
+            val failingRepository = FakeFavoritesRepository().apply {
+                readError = RuntimeException("disk read failure")
+            }
+            val failingViewModel = FavoritesViewModel(ObserveFavoritesUseCase(failingRepository))
+
+            // When
+            backgroundScope.launch { failingViewModel.uiState.collect { } }
+            advanceUntilIdle()
+
+            // Then
+            val state = failingViewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertTrue(state.isError)
+            assertTrue(state.favorites.isEmpty())
+        }
 }

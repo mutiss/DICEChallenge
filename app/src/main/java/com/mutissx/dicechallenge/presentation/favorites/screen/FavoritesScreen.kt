@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.mutissx.dicechallenge.R
 import com.mutissx.dicechallenge.presentation.components.ArtistRow
 import com.mutissx.dicechallenge.presentation.components.EmptyView
+import com.mutissx.dicechallenge.presentation.components.ErrorView
 import com.mutissx.dicechallenge.presentation.components.LoadingView
 import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.favorites.viewmodel.FavoritesViewModel
@@ -45,6 +46,10 @@ fun FavoritesScreen(
         when {
             state.isLoading -> LoadingView(
                 modifier = Modifier.testTag(TestTags.FAVORITES_LOADING_INDICATOR)
+            )
+            state.isError -> ErrorView(
+                message = stringResource(R.string.favorites_error_generic),
+                modifier = Modifier.testTag(TestTags.FAVORITES_ERROR_VIEW)
             )
             state.favorites.isEmpty() -> EmptyView(
                 message = stringResource(R.string.favorites_empty),

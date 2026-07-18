@@ -6,7 +6,7 @@ import com.mutissx.dicechallenge.presentation.search.viewmodel.SearchViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val presentationlModule = module {
+val presentationModule = module {
 
     viewModel {
         SearchViewModel(searchArtistsUseCase = get())

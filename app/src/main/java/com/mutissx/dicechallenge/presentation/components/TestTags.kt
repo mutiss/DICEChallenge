@@ -22,6 +22,7 @@ object TestTags {
 
     const val FAVORITES_LOADING_INDICATOR = "favorites_loading_indicator"
     const val FAVORITES_EMPTY_VIEW = "favorites_empty_view"
+    const val FAVORITES_ERROR_VIEW = "favorites_error_view"
     const val FAVORITES_LIST = "favorites_list"
     const val FAVORITES_ARTIST_ROW = "favorites_artist_row"
 }

@@ -91,9 +91,14 @@ class ArtistDetailViewModel(
     fun onFavoriteToggle() {
         val current = _uiState.value as? ArtistDetailUiState.Content ?: return
         viewModelScope.launch {
-            toggleFavorite(current.artist, current.isFavorite)
-            val messageRes = if (current.isFavorite) R.string.favorite_removed else R.string.favorite_added
-            _favoriteMessages.send(UiText.StringResource(messageRes, current.artist.name))
+            val result = toggleFavorite(current.artist, current.isFavorite)
+            val message = if (result is Result.Error) {
+                result.error.asUiText()
+            } else {
+                val messageRes = if (current.isFavorite) R.string.favorite_removed else R.string.favorite_added
+                UiText.StringResource(messageRes, current.artist.name)
+            }
+            _favoriteMessages.send(message)
         }
     }
 }

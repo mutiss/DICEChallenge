@@ -298,4 +298,30 @@ class ArtistDetailViewModelTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
+
+    @Test
+    fun `given the favorites repository write fails, when onFavoriteToggle is called, then favoriteMessages emits an error instead of crashing`() =
+        runTest {
+            // Given
+            val artist = Artist(mbid, "Radiohead", null, null, null)
+            fakeRepository.artistResult = Result.Success(artist)
+            fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+            fakeFavoritesRepository.writeResult = Result.Error(DataError.Local.DISK_FULL)
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.favoriteMessages.test {
+                // When — this must not throw or kill the ViewModel's coroutine scope
+                viewModel.onFavoriteToggle()
+
+                // Then
+                val message = awaitItem() as UiText.StringResource
+                assertEquals(R.string.favorite_toggle_error, message.resId)
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            // isFavorite is unchanged since the write never actually succeeded
+            val content = viewModel.uiState.value as ArtistDetailUiState.Content
+            assertFalse(content.isFavorite)
+        }
 }

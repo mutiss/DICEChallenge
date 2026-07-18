@@ -1,6 +1,8 @@
 package com.mutissx.dicechallenge.data.repository
 
 import app.cash.turbine.test
+import com.mutissx.dicechallenge.core.domain.DataError
+import com.mutissx.dicechallenge.core.domain.Result
 import com.mutissx.dicechallenge.data.local.FavoriteArtistDao
 import com.mutissx.dicechallenge.data.local.FavoriteArtistEntity
 import com.mutissx.dicechallenge.domain.model.Artist
@@ -12,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -75,16 +78,17 @@ class FavoritesRepositoryImplTest {
         }
 
     @Test
-    fun `given an artist, when add is called, then the dao inserts an entity stamped with the clock time`() =
+    fun `given an artist, when add is called, then the dao inserts an entity stamped with the clock time and returns Success`() =
         runTest {
             // Given
             val artist = Artist(mbid = "id-1", name = "Radiohead", country = "GB", disambiguation = "British band", score = null)
             coEvery { mockDao.insert(any()) } returns Unit
 
             // When
-            repository.add(artist)
+            val result = repository.add(artist)
 
             // Then
+            assertEquals(Result.Success(Unit), result)
             coVerify {
                 mockDao.insert(
                     FavoriteArtistEntity(
@@ -99,15 +103,45 @@ class FavoritesRepositoryImplTest {
         }
 
     @Test
-    fun `given an mbid, when remove is called, then the dao deletes that mbid`() =
+    fun `given an mbid, when remove is called, then the dao deletes that mbid and returns Success`() =
         runTest {
             // Given
             coEvery { mockDao.delete("id-1") } returns Unit
 
             // When
-            repository.remove("id-1")
+            val result = repository.remove("id-1")
 
             // Then
+            assertEquals(Result.Success(Unit), result)
             coVerify { mockDao.delete("id-1") }
+        }
+
+    @Test
+    fun `given the dao throws on insert, when add is called, then it returns Result Error instead of propagating`() =
+        runTest {
+            // Given
+            val artist = Artist(mbid = "id-1", name = "Radiohead", country = null, disambiguation = null, score = null)
+            coEvery { mockDao.insert(any()) } throws RuntimeException("disk full")
+
+            // When
+            val result = repository.add(artist)
+
+            // Then
+            assertTrue(result is Result.Error)
+            assertEquals(DataError.Local.UNKNOWN, (result as Result.Error).error)
+        }
+
+    @Test
+    fun `given the dao throws on delete, when remove is called, then it returns Result Error instead of propagating`() =
+        runTest {
+            // Given
+            coEvery { mockDao.delete("id-1") } throws RuntimeException("disk full")
+
+            // When
+            val result = repository.remove("id-1")
+
+            // Then
+            assertTrue(result is Result.Error)
+            assertEquals(DataError.Local.UNKNOWN, (result as Result.Error).error)
         }
 }

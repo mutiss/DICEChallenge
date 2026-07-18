@@ -5,5 +5,6 @@ import com.mutissx.dicechallenge.domain.model.Artist
 
 data class FavoritesUiState(
     val isLoading: Boolean = true,
-    val favorites: List<Artist> = emptyList()
+    val favorites: List<Artist> = emptyList(),
+    val isError: Boolean = false
 )

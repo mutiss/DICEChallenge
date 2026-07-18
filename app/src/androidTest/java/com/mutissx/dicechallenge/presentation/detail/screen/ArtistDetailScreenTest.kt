@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -23,6 +22,8 @@ import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
 import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
 import com.mutissx.dicechallenge.presentation.navigation.Destination
+import com.mutissx.dicechallenge.util.waitForTag
+import com.mutissx.dicechallenge.util.waitForText
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -72,18 +73,6 @@ class ArtistDetailScreenTest {
         }
     }
 
-    private fun waitForTag(tag: String, timeoutMillis: Long = 5_000L) {
-        composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
-            composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-
-    private fun waitForText(text: String, timeoutMillis: Long = 5_000L) {
-        composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
-            composeTestRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-
     @Test
     fun given_successful_fetch_with_albums_when_screen_is_shown_then_artist_name_and_albums_are_displayed() {
         fakeRepository.artistResult = Result.Success(artist())
@@ -92,7 +81,7 @@ class ArtistDetailScreenTest {
         )
 
         setContent()
-        waitForTag(TestTags.DETAIL_CONTENT_LIST)
+        composeTestRule.waitForTag(TestTags.DETAIL_CONTENT_LIST)
 
         composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
         composeTestRule.onAllNodesWithTag(TestTags.DETAIL_ALBUM_ROW).assertCountEquals(2)
@@ -106,7 +95,7 @@ class ArtistDetailScreenTest {
         fakeRepository.releaseGroupsResult = Result.Success(emptyList())
 
         setContent()
-        waitForTag(TestTags.DETAIL_EMPTY_ALBUMS)
+        composeTestRule.waitForTag(TestTags.DETAIL_EMPTY_ALBUMS)
 
         composeTestRule.onNodeWithTag(TestTags.DETAIL_EMPTY_ALBUMS).assertIsDisplayed()
     }
@@ -117,7 +106,7 @@ class ArtistDetailScreenTest {
         fakeRepository.releaseGroupsResult = Result.Success(emptyList())
 
         setContent()
-        waitForTag(TestTags.DETAIL_ERROR_VIEW)
+        composeTestRule.waitForTag(TestTags.DETAIL_ERROR_VIEW)
 
         composeTestRule.onNodeWithTag(TestTags.DETAIL_ERROR_VIEW).assertIsDisplayed()
         composeTestRule.onNodeWithTag(TestTags.ERROR_RETRY_BUTTON).assertIsDisplayed()
@@ -129,11 +118,11 @@ class ArtistDetailScreenTest {
         fakeRepository.releaseGroupsResult = Result.Success(emptyList())
 
         setContent()
-        waitForTag(TestTags.DETAIL_ERROR_VIEW)
+        composeTestRule.waitForTag(TestTags.DETAIL_ERROR_VIEW)
 
         fakeRepository.artistResult = Result.Success(artist())
         composeTestRule.onNodeWithTag(TestTags.ERROR_RETRY_BUTTON).performClick()
-        waitForTag(TestTags.DETAIL_EMPTY_ALBUMS)
+        composeTestRule.waitForTag(TestTags.DETAIL_EMPTY_ALBUMS)
 
         composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
     }
@@ -144,7 +133,7 @@ class ArtistDetailScreenTest {
         fakeRepository.releaseGroupsResult = Result.Success(emptyList())
 
         setContent()
-        waitForTag(TestTags.DETAIL_EMPTY_ALBUMS)
+        composeTestRule.waitForTag(TestTags.DETAIL_EMPTY_ALBUMS)
 
         composeTestRule.onNodeWithTag(TestTags.DETAIL_BACK_BUTTON).performClick()
 
@@ -157,10 +146,10 @@ class ArtistDetailScreenTest {
         fakeRepository.releaseGroupsResult = Result.Success(emptyList())
 
         setContent()
-        waitForTag(TestTags.DETAIL_FAVORITE_BUTTON)
+        composeTestRule.waitForTag(TestTags.DETAIL_FAVORITE_BUTTON)
 
         composeTestRule.onNodeWithTag(TestTags.DETAIL_FAVORITE_BUTTON).performClick()
-        waitForText("Radiohead added to favorites")
+        composeTestRule.waitForText("Radiohead added to favorites")
 
         composeTestRule.onNodeWithText("Radiohead added to favorites").assertIsDisplayed()
     }
@@ -173,10 +162,10 @@ class ArtistDetailScreenTest {
         runBlocking { fakeFavoritesRepository.add(target) }
 
         setContent()
-        waitForTag(TestTags.DETAIL_FAVORITE_BUTTON)
+        composeTestRule.waitForTag(TestTags.DETAIL_FAVORITE_BUTTON)
 
         composeTestRule.onNodeWithTag(TestTags.DETAIL_FAVORITE_BUTTON).performClick()
-        waitForText("Radiohead removed from favorites")
+        composeTestRule.waitForText("Radiohead removed from favorites")
 
         composeTestRule.onNodeWithText("Radiohead removed from favorites").assertIsDisplayed()
     }

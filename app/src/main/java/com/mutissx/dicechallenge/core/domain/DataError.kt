@@ -10,4 +10,9 @@ sealed interface DataError {
         REQUEST_TIMEOUT,     // SocketTimeoutException
         UNKNOWN
     }
+
+    enum class Local : DataError {
+        DISK_FULL,   // SQLiteFullException
+        UNKNOWN
+    }
 }

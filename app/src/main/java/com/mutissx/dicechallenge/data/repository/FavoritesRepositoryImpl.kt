@@ -1,5 +1,8 @@
 package com.mutissx.dicechallenge.data.repository
 
+import com.mutissx.dicechallenge.core.data.safeDbCall
+import com.mutissx.dicechallenge.core.domain.DataError
+import com.mutissx.dicechallenge.core.domain.Result
 import com.mutissx.dicechallenge.data.local.FavoriteArtistDao
 import com.mutissx.dicechallenge.data.mapper.toDomain
 import com.mutissx.dicechallenge.data.mapper.toEntity
@@ -19,11 +22,9 @@ class FavoritesRepositoryImpl(
     override fun observeIsFavorite(mbid: String): Flow<Boolean> =
         dao.observeIsFavorite(mbid)
 
-    override suspend fun add(artist: Artist) {
-        dao.insert(artist.toEntity(addedAt = clock()))
-    }
+    override suspend fun add(artist: Artist): Result<Unit, DataError.Local> =
+        safeDbCall { dao.insert(artist.toEntity(addedAt = clock())) }
 
-    override suspend fun remove(mbid: String) {
-        dao.delete(mbid)
-    }
+    override suspend fun remove(mbid: String): Result<Unit, DataError.Local> =
+        safeDbCall { dao.delete(mbid) }
 }

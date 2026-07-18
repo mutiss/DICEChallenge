@@ -13,5 +13,8 @@ fun DataError.asUiText(): UiText {
         DataError.Network.REQUEST_TIMEOUT -> UiText.StringResource(R.string.timed_out)
         DataError.Network.CLIENT_ERROR,
         DataError.Network.UNKNOWN -> UiText.StringResource(R.string.unknown_error)
+
+        DataError.Local.DISK_FULL,
+        DataError.Local.UNKNOWN -> UiText.StringResource(R.string.favorite_toggle_error)
     }
 }
