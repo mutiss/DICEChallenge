@@ -7,14 +7,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-suspend inline fun <T> safeApiCall(
+suspend inline fun <T> safeDbCall(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     crossinline block: suspend () -> T
-): Result<T, DataError.Network> =
+): Result<T, DataError.Local> =
     try {
         Result.Success(withContext(dispatcher) { block() })
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        Result.Error(e.toNetworkError())
+        Result.Error(e.toLocalError())
     }

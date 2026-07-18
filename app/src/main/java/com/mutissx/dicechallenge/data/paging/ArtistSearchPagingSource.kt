@@ -8,10 +8,14 @@ import com.mutissx.dicechallenge.core.data.toNetworkError
 import com.mutissx.dicechallenge.core.domain.DataException
 import com.mutissx.dicechallenge.domain.model.Artist
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class ArtistSearchPagingSource(
     private val api: MusicBrainzApi,
-    private val query: String
+    private val query: String,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : PagingSource<Int, Artist>() {
 
     // MusicBrainz's search API doesn't guarantee a stable sort across requests when
@@ -29,11 +33,13 @@ class ArtistSearchPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Artist> {
         val offset = params.key ?: 0
         return try {
-            val response = api.searchArtists(
-                query = query,
-                limit = PAGE_SIZE,
-                offset = offset
-            )
+            val response = withContext(dispatcher) {
+                api.searchArtists(
+                    query = query,
+                    limit = PAGE_SIZE,
+                    offset = offset
+                )
+            }
             val rawItems = response.artists.map { it.toDomain() }
             val items = rawItems.filter { seenMbids.add(it.mbid) }
             val nextOffset = offset + rawItems.size

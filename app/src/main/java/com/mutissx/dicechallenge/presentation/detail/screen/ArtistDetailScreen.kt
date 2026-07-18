@@ -36,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mutissx.dicechallenge.R
 import com.mutissx.dicechallenge.domain.model.Artist
-import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.presentation.components.EmptyView
 import com.mutissx.dicechallenge.presentation.components.ErrorView
 import com.mutissx.dicechallenge.presentation.components.LoadingView
@@ -129,6 +128,7 @@ fun ArtistDetailScreen(
             is ArtistDetailUiState.Content -> DetailContent(
                 artist = state.artist,
                 releaseGroups = state.releaseGroups,
+                onRetryReleaseGroups = viewModel::retryReleaseGroups,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -140,7 +140,8 @@ fun ArtistDetailScreen(
 @Composable
 private fun DetailContent(
     artist: Artist,
-    releaseGroups: List<ReleaseGroup>,
+    releaseGroups: ReleaseGroupsState,
+    onRetryReleaseGroups: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier.testTag(TestTags.DETAIL_CONTENT_LIST)) {
@@ -183,21 +184,33 @@ private fun DetailContent(
                 )
             }
         }
-        if (releaseGroups.isEmpty()) {
-            item {
-                EmptyView(
-                    message = stringResource(R.string.detail_empty_albums),
-                    modifier = Modifier.testTag(TestTags.DETAIL_EMPTY_ALBUMS)
+        when (releaseGroups) {
+            ReleaseGroupsState.Loading -> item {
+                LoadingView(modifier = Modifier.testTag(TestTags.DETAIL_ALBUMS_LOADING))
+            }
+            is ReleaseGroupsState.Error -> item {
+                ErrorView(
+                    message = releaseGroups.message.asString(),
+                    onRetry = onRetryReleaseGroups,
+                    modifier = Modifier.testTag(TestTags.DETAIL_ALBUMS_ERROR)
                 )
             }
-        } else {
-            items(releaseGroups, key = { it.mbid }) { rg ->
-                ReleaseGroupRow(
-                    releaseGroup = rg,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(TestTags.DETAIL_ALBUM_ROW)
-                )
+            is ReleaseGroupsState.Loaded -> if (releaseGroups.items.isEmpty()) {
+                item {
+                    EmptyView(
+                        message = stringResource(R.string.detail_empty_albums),
+                        modifier = Modifier.testTag(TestTags.DETAIL_EMPTY_ALBUMS)
+                    )
+                }
+            } else {
+                items(releaseGroups.items, key = { it.mbid }) { rg ->
+                    ReleaseGroupRow(
+                        releaseGroup = rg,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(TestTags.DETAIL_ALBUM_ROW)
+                    )
+                }
             }
         }
     }

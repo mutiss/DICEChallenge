@@ -18,10 +18,13 @@ object TestTags {
     const val DETAIL_CONTENT_LIST = "detail_content_list"
     const val DETAIL_ALBUM_ROW = "detail_album_row"
     const val DETAIL_EMPTY_ALBUMS = "detail_empty_albums"
+    const val DETAIL_ALBUMS_LOADING = "detail_albums_loading"
+    const val DETAIL_ALBUMS_ERROR = "detail_albums_error"
     const val DETAIL_FAVORITE_BUTTON = "detail_favorite_button"
 
     const val FAVORITES_LOADING_INDICATOR = "favorites_loading_indicator"
     const val FAVORITES_EMPTY_VIEW = "favorites_empty_view"
+    const val FAVORITES_ERROR_VIEW = "favorites_error_view"
     const val FAVORITES_LIST = "favorites_list"
     const val FAVORITES_ARTIST_ROW = "favorites_artist_row"
 }

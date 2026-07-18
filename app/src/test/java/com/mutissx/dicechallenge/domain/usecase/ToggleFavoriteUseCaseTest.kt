@@ -1,5 +1,7 @@
 package com.mutissx.dicechallenge.domain.usecase
 
+import com.mutissx.dicechallenge.core.domain.DataError
+import com.mutissx.dicechallenge.core.domain.Result
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,5 +45,33 @@ class ToggleFavoriteUseCaseTest {
             // Then
             assertEquals(listOf(artist.mbid), fakeRepository.removedMbids)
             assertTrue(fakeRepository.addedArtists.isEmpty())
+        }
+
+    @Test
+    fun `given the repository add fails, when invoke is called, then the failure Result is returned`() =
+        runTest {
+            // Given
+            fakeRepository.writeResult = Result.Error(DataError.Local.DISK_FULL)
+
+            // When
+            val result = useCase(artist, isCurrentlyFavorite = false)
+
+            // Then
+            assertEquals(Result.Error(DataError.Local.DISK_FULL), result)
+            assertTrue(fakeRepository.addedArtists.isEmpty())
+        }
+
+    @Test
+    fun `given the repository remove fails, when invoke is called, then the failure Result is returned`() =
+        runTest {
+            // Given
+            fakeRepository.writeResult = Result.Error(DataError.Local.UNKNOWN)
+
+            // When
+            val result = useCase(artist, isCurrentlyFavorite = true)
+
+            // Then
+            assertEquals(Result.Error(DataError.Local.UNKNOWN), result)
+            assertTrue(fakeRepository.removedMbids.isEmpty())
         }
 }

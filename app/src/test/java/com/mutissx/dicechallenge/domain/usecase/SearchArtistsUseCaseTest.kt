@@ -34,7 +34,7 @@ class SearchArtistsUseCaseTest {
         }
 
     @Test
-    fun `given a configured repository, when invoke is called, then returned flow emits one item`() =
+    fun `given a configured repository, when invoke is called, then returned flow emits at least one item`() =
         runTest {
             // Given
             val query = "beatles"
@@ -42,10 +42,11 @@ class SearchArtistsUseCaseTest {
             // When
             val resultFlow = useCase(query)
 
-            // Then
+            // Then — a real Pager-backed flow (unlike a plain flowOf) stays open for
+            // further generations (retry/invalidation), so it never completes on its own.
             resultFlow.test {
                 awaitItem()
-                awaitComplete()
+                cancelAndIgnoreRemainingEvents()
             }
         }
 

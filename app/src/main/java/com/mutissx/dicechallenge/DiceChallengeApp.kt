@@ -5,7 +5,7 @@ import com.mutissx.dicechallenge.di.dataModule
 import com.mutissx.dicechallenge.di.databaseModule
 import com.mutissx.dicechallenge.di.domainModule
 import com.mutissx.dicechallenge.di.networkModule
-import com.mutissx.dicechallenge.di.presentationlModule
+import com.mutissx.dicechallenge.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -22,7 +22,7 @@ class DiceChallengeApp : Application() {
                 databaseModule,
                 domainModule,
                 networkModule,
-                presentationlModule
+                presentationModule
             )
         }
     }

@@ -9,7 +9,13 @@ sealed interface ArtistDetailUiState {
     data class Error(val message: UiText) : ArtistDetailUiState
     data class Content(
         val artist: Artist,
-        val releaseGroups: List<ReleaseGroup>,
-        val isFavorite: Boolean
+        val isFavorite: Boolean,
+        val releaseGroups: ReleaseGroupsState
     ) : ArtistDetailUiState
+}
+
+sealed interface ReleaseGroupsState {
+    data object Loading : ReleaseGroupsState
+    data class Loaded(val items: List<ReleaseGroup>) : ReleaseGroupsState
+    data class Error(val message: UiText) : ReleaseGroupsState
 }

@@ -14,6 +14,7 @@ import com.mutissx.dicechallenge.domain.usecase.ObserveFavoritesUseCase
 import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
 import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.favorites.viewmodel.FavoritesViewModel
+import com.mutissx.dicechallenge.util.waitForTag
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -50,16 +51,10 @@ class FavoritesScreenTest {
         }
     }
 
-    private fun waitForTag(tag: String, timeoutMillis: Long = 5_000L) {
-        composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
-            composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-
     @Test
     fun given_no_favorites_when_screen_is_shown_then_empty_view_is_displayed() {
         setContent()
-        waitForTag(TestTags.FAVORITES_EMPTY_VIEW)
+        composeTestRule.waitForTag(TestTags.FAVORITES_EMPTY_VIEW)
 
         composeTestRule.onNodeWithTag(TestTags.FAVORITES_EMPTY_VIEW).assertIsDisplayed()
     }
@@ -72,7 +67,7 @@ class FavoritesScreenTest {
         }
 
         setContent()
-        waitForTag(TestTags.FAVORITES_LIST)
+        composeTestRule.waitForTag(TestTags.FAVORITES_LIST)
 
         composeTestRule.onAllNodesWithTag(TestTags.FAVORITES_ARTIST_ROW).assertCountEquals(2)
         composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
@@ -84,7 +79,7 @@ class FavoritesScreenTest {
         runBlocking { fakeRepository.add(artist("id-1", "Radiohead")) }
 
         setContent()
-        waitForTag(TestTags.FAVORITES_LIST)
+        composeTestRule.waitForTag(TestTags.FAVORITES_LIST)
 
         composeTestRule.onNodeWithText("Radiohead").performClick()
 
@@ -94,10 +89,10 @@ class FavoritesScreenTest {
     @Test
     fun given_the_screen_is_open_when_an_artist_is_added_to_favorites_then_the_list_updates() {
         setContent()
-        waitForTag(TestTags.FAVORITES_EMPTY_VIEW)
+        composeTestRule.waitForTag(TestTags.FAVORITES_EMPTY_VIEW)
 
         runBlocking { fakeRepository.add(artist("id-1", "Radiohead")) }
-        waitForTag(TestTags.FAVORITES_LIST)
+        composeTestRule.waitForTag(TestTags.FAVORITES_LIST)
 
         composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
     }
@@ -107,11 +102,21 @@ class FavoritesScreenTest {
         runBlocking { fakeRepository.add(artist("id-1", "Radiohead")) }
 
         setContent()
-        waitForTag(TestTags.FAVORITES_LIST)
+        composeTestRule.waitForTag(TestTags.FAVORITES_LIST)
 
         runBlocking { fakeRepository.remove("id-1") }
-        waitForTag(TestTags.FAVORITES_EMPTY_VIEW)
+        composeTestRule.waitForTag(TestTags.FAVORITES_EMPTY_VIEW)
 
         composeTestRule.onNodeWithTag(TestTags.FAVORITES_EMPTY_VIEW).assertIsDisplayed()
+    }
+
+    @Test
+    fun given_the_repository_read_fails_when_screen_is_shown_then_error_view_is_displayed() {
+        fakeRepository.readError = RuntimeException("disk read failure")
+
+        setContent()
+        composeTestRule.waitForTag(TestTags.FAVORITES_ERROR_VIEW)
+
+        composeTestRule.onNodeWithTag(TestTags.FAVORITES_ERROR_VIEW).assertIsDisplayed()
     }
 }

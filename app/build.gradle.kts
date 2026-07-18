@@ -12,30 +12,27 @@ android {
     defaultConfig {
         applicationId = "com.mutissx.dicechallenge"
         minSdk = 29
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true
+
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"https://musicbrainz.org/ws/2/\""
+        )
     }
 
     buildTypes {
         debug {
             isMinifyEnabled = false
-            buildConfigField(
-                "String",
-                "BASE_URL",
-                "\"https://musicbrainz.org/ws/2/\""
-            )
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField(
-                "String",
-                "BASE_URL",
-                "\"https://musicbrainz.org/ws/2/\""
-            )
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -48,6 +45,9 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    testFixtures {
+        enable = true
     }
 }
 
@@ -111,6 +111,14 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.turbine)
+
+    // Test fixtures (fakes shared between the test and androidTest source sets).
+    // The Compose Compiler plugin applies to every source set in the module, so it needs
+    // Compose Runtime on this classpath too, even though these fixtures use no Compose APIs.
+    testFixturesImplementation(platform(libs.androidx.compose.bom))
+    testFixturesImplementation(libs.androidx.compose.ui)
+    testFixturesImplementation(libs.androidx.paging.runtime)
 
     // Debug
     debugImplementation(libs.androidx.compose.ui.test.manifest)

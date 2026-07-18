@@ -16,6 +16,7 @@ import com.mutissx.dicechallenge.fake.FakeArtistPagingSource
 import com.mutissx.dicechallenge.fake.FakeArtistRepository
 import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.search.viewmodel.SearchViewModel
+import com.mutissx.dicechallenge.util.waitForTag
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -47,12 +48,6 @@ class SearchScreenTest {
         }
     }
 
-    private fun waitForTag(tag: String, timeoutMillis: Long = 5_000L) {
-        composeTestRule.waitUntil(timeoutMillis = timeoutMillis) {
-            composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-
     private fun artist(mbid: String, name: String) = Artist(
         mbid = mbid,
         name = name,
@@ -79,7 +74,7 @@ class SearchScreenTest {
         fakeRepository.pagingSourceFactory = { FakeArtistPagingSource(Result.success(artists)) }
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).performTextInput("radio")
-        waitForTag(TestTags.SEARCH_RESULTS_LIST)
+        composeTestRule.waitForTag(TestTags.SEARCH_RESULTS_LIST)
 
         composeTestRule.onAllNodesWithTag(TestTags.ARTIST_ROW).assertCountEquals(2)
         composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
@@ -91,7 +86,7 @@ class SearchScreenTest {
         fakeRepository.pagingSourceFactory = { FakeArtistPagingSource(Result.success(emptyList())) }
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).performTextInput("zzz")
-        waitForTag(TestTags.EMPTY_VIEW_NO_RESULTS)
+        composeTestRule.waitForTag(TestTags.EMPTY_VIEW_NO_RESULTS)
 
         composeTestRule.onNodeWithTag(TestTags.EMPTY_VIEW_NO_RESULTS).assertIsDisplayed()
     }
@@ -103,7 +98,7 @@ class SearchScreenTest {
         }
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).performTextInput("fail")
-        waitForTag(TestTags.ERROR_VIEW)
+        composeTestRule.waitForTag(TestTags.ERROR_VIEW)
 
         composeTestRule.onNodeWithTag(TestTags.ERROR_VIEW).assertIsDisplayed()
         composeTestRule.onNodeWithTag(TestTags.ERROR_RETRY_BUTTON).assertIsDisplayed()
@@ -121,10 +116,10 @@ class SearchScreenTest {
         fakeRepository.pagingSourceFactory = { FakeArtistPagingSource { results.removeFirst() } }
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).performTextInput("muse")
-        waitForTag(TestTags.ERROR_VIEW)
+        composeTestRule.waitForTag(TestTags.ERROR_VIEW)
 
         composeTestRule.onNodeWithTag(TestTags.ERROR_RETRY_BUTTON).performClick()
-        waitForTag(TestTags.SEARCH_RESULTS_LIST)
+        composeTestRule.waitForTag(TestTags.SEARCH_RESULTS_LIST)
 
         composeTestRule.onNodeWithText("Muse").assertIsDisplayed()
     }
@@ -135,10 +130,10 @@ class SearchScreenTest {
         fakeRepository.pagingSourceFactory = { FakeArtistPagingSource(Result.success(artists)) }
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).performTextInput("oasis")
-        waitForTag(TestTags.SEARCH_RESULTS_LIST)
+        composeTestRule.waitForTag(TestTags.SEARCH_RESULTS_LIST)
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_CLEAR_BUTTON).performClick()
-        waitForTag(TestTags.EMPTY_VIEW_START)
+        composeTestRule.waitForTag(TestTags.EMPTY_VIEW_START)
 
         composeTestRule.onNodeWithTag(TestTags.EMPTY_VIEW_START).assertIsDisplayed()
     }
@@ -149,7 +144,7 @@ class SearchScreenTest {
         fakeRepository.pagingSourceFactory = { FakeArtistPagingSource(Result.success(listOf(target))) }
 
         composeTestRule.onNodeWithTag(TestTags.SEARCH_TEXT_FIELD).performTextInput("blur")
-        waitForTag(TestTags.SEARCH_RESULTS_LIST)
+        composeTestRule.waitForTag(TestTags.SEARCH_RESULTS_LIST)
 
         composeTestRule.onNodeWithText("Blur").performClick()
 
