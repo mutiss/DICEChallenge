@@ -4,8 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.mutissx.dicechallenge.R
+import com.mutissx.dicechallenge.core.domain.DataException
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.usecase.SearchArtistsUseCase
+import com.mutissx.dicechallenge.core.ui.UiText
+import com.mutissx.dicechallenge.core.ui.extensions.asUiText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +24,7 @@ import kotlinx.coroutines.flow.map
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class SearchViewModel(
-    private val searchArtists: SearchArtistsUseCase
+    private val searchArtistsUseCase: SearchArtistsUseCase
 ) : ViewModel() {
 
     private val _query = MutableStateFlow("")
@@ -37,7 +41,7 @@ class SearchViewModel(
             if (query.length < MIN_QUERY_LENGTH) {
                 flowOf(PagingData.empty())
             } else {
-                searchArtists(query)
+                searchArtistsUseCase(query)
             }
         }
         .cachedIn(viewModelScope)
@@ -49,6 +53,10 @@ class SearchViewModel(
     fun onClearQuery() {
         _query.value = EMPTY_VALUE
     }
+
+    fun errorMessage(throwable: Throwable): UiText =
+        (throwable as? DataException)?.error?.asUiText()
+            ?: UiText.StringResource(R.string.search_error_generic)
 
     companion object {
         const val EMPTY_VALUE = ""

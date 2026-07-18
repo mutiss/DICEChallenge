@@ -4,6 +4,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.mutissx.dicechallenge.data.mapper.toDomain
 import com.mutissx.dicechallenge.data.remote.api.MusicBrainzApi
+import com.mutissx.dicechallenge.core.data.toNetworkError
+import com.mutissx.dicechallenge.core.domain.DataException
 import com.mutissx.dicechallenge.domain.model.Artist
 import kotlinx.coroutines.CancellationException
 
@@ -42,7 +44,7 @@ class ArtistSearchPagingSource(
             )
         } catch (t: Throwable) {
             if (t is CancellationException) throw t
-            LoadResult.Error(t)
+            LoadResult.Error(DataException(t.toNetworkError()))
         }
     }
 
