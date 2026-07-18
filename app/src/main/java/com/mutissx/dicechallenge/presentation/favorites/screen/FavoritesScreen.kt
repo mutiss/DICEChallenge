@@ -13,10 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mutissx.dicechallenge.R
 import com.mutissx.dicechallenge.presentation.components.ArtistRow
 import com.mutissx.dicechallenge.presentation.components.EmptyView
 import com.mutissx.dicechallenge.presentation.components.LoadingView
+import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.favorites.viewmodel.FavoritesViewModel
 
 @Composable
@@ -33,25 +37,31 @@ fun FavoritesScreen(
             .padding(innerPadding)
     ) {
         Text(
-            text = "Favorites",
+            text = stringResource(R.string.nav_favorites_title),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
         )
         when {
-            state.isLoading -> LoadingView()
+            state.isLoading -> LoadingView(
+                modifier = Modifier.testTag(TestTags.FAVORITES_LOADING_INDICATOR)
+            )
             state.favorites.isEmpty() -> EmptyView(
-                message = "No favorites yet. Search for an artist and tap the heart to add one."
+                message = stringResource(R.string.favorites_empty),
+                modifier = Modifier.testTag(TestTags.FAVORITES_EMPTY_VIEW)
             )
             else -> LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(TestTags.FAVORITES_LIST),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(state.favorites, key = { it.mbid }) { artist ->
                     ArtistRow(
                         artist = artist,
-                        onClick = { onArtistClick(artist.mbid) }
+                        onClick = { onArtistClick(artist.mbid) },
+                        modifier = Modifier.testTag(TestTags.FAVORITES_ARTIST_ROW)
                     )
                 }
             }

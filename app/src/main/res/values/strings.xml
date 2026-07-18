@@ -18,6 +18,7 @@
     <string name="remove_from_favorites_description">Remove from favorites</string>
     <string name="favorite_added">%1$s added to favorites</string>
     <string name="favorite_removed">%1$s removed from favorites</string>
+    <string name="favorites_empty">No favorites yet. Search for an artist and tap the heart to add one.</string>
 
     <string name="timed_out">The request timed out</string>
     <string name="no_internet">Couldn\'t reach server. Check your internet connection.</string>
