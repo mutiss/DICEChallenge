@@ -155,6 +155,34 @@ class ArtistDetailScreenTest {
     }
 
     @Test
+    fun given_artist_succeeds_and_release_groups_fetch_fails_when_screen_is_shown_then_artist_is_displayed_with_an_albums_error_view() {
+        fakeRepository.artistResult = Result.Success(artist())
+        fakeRepository.releaseGroupsResult = Result.Error(DataError.Network.SERVICE_UNAVAILABLE)
+
+        setContent()
+        composeTestRule.waitForTag(TestTags.DETAIL_ALBUMS_ERROR)
+
+        composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TestTags.DETAIL_ALBUMS_ERROR).assertIsDisplayed()
+    }
+
+    @Test
+    fun given_an_albums_error_view_when_retry_is_clicked_then_albums_are_displayed_after_successful_retry() {
+        fakeRepository.artistResult = Result.Success(artist())
+        fakeRepository.releaseGroupsResult = Result.Error(DataError.Network.SERVICE_UNAVAILABLE)
+
+        setContent()
+        composeTestRule.waitForTag(TestTags.DETAIL_ALBUMS_ERROR)
+
+        fakeRepository.releaseGroupsResult = Result.Success(listOf(releaseGroup("rg-1", "OK Computer")))
+        composeTestRule.onNodeWithTag(TestTags.ERROR_RETRY_BUTTON).performClick()
+        composeTestRule.waitForTag(TestTags.DETAIL_ALBUM_ROW)
+
+        composeTestRule.onNodeWithText("Radiohead").assertIsDisplayed()
+        composeTestRule.onNodeWithText("OK Computer").assertIsDisplayed()
+    }
+
+    @Test
     fun given_content_displayed_and_already_favorite_when_favorite_button_is_clicked_then_removed_snackbar_is_displayed() {
         val target = artist()
         fakeRepository.artistResult = Result.Success(target)
