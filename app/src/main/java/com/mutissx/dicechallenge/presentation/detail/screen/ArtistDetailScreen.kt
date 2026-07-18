@@ -1,4 +1,4 @@
-package com.mutissx.dicechallenge.presentation.detail
+package com.mutissx.dicechallenge.presentation.detail.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mutissx.dicechallenge.R
@@ -31,6 +32,8 @@ import com.mutissx.dicechallenge.presentation.components.EmptyView
 import com.mutissx.dicechallenge.presentation.components.ErrorView
 import com.mutissx.dicechallenge.presentation.components.LoadingView
 import com.mutissx.dicechallenge.presentation.components.ReleaseGroupRow
+import com.mutissx.dicechallenge.presentation.components.TestTags
+import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +55,10 @@ fun ArtistDetailScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.testTag(TestTags.DETAIL_BACK_BUTTON)
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back_button_description)
@@ -68,11 +74,17 @@ fun ArtistDetailScreen(
         }
     ) { padding ->
         when (val state = uiState) {
-            is ArtistDetailUiState.Loading -> LoadingView(modifier = Modifier.padding(padding))
+            is ArtistDetailUiState.Loading -> LoadingView(
+                modifier = Modifier
+                    .padding(padding)
+                    .testTag(TestTags.DETAIL_LOADING_INDICATOR)
+            )
             is ArtistDetailUiState.Error -> ErrorView(
                 message = state.message.asString(),
                 onRetry = viewModel::loadInfo,
-                modifier = Modifier.padding(padding)
+                modifier = Modifier
+                    .padding(padding)
+                    .testTag(TestTags.DETAIL_ERROR_VIEW)
             )
             is ArtistDetailUiState.Content -> DetailContent(
                 artist = state.artist,
@@ -91,7 +103,7 @@ private fun DetailContent(
     releaseGroups: List<ReleaseGroup>,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(modifier = modifier.testTag(TestTags.DETAIL_CONTENT_LIST)) {
         item {
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
@@ -132,10 +144,20 @@ private fun DetailContent(
             }
         }
         if (releaseGroups.isEmpty()) {
-            item { EmptyView(message = stringResource(R.string.detail_empty_albums)) }
+            item {
+                EmptyView(
+                    message = stringResource(R.string.detail_empty_albums),
+                    modifier = Modifier.testTag(TestTags.DETAIL_EMPTY_ALBUMS)
+                )
+            }
         } else {
             items(releaseGroups, key = { it.mbid }) { rg ->
-                ReleaseGroupRow(releaseGroup = rg, modifier = Modifier.fillMaxWidth())
+                ReleaseGroupRow(
+                    releaseGroup = rg,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TestTags.DETAIL_ALBUM_ROW)
+                )
             }
         }
     }

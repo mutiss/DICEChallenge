@@ -11,4 +11,11 @@ object TestTags {
     const val ERROR_RETRY_BUTTON = "error_retry_button"
     const val EMPTY_VIEW_START = "empty_view_start"
     const val EMPTY_VIEW_NO_RESULTS = "empty_view_no_results"
+
+    const val DETAIL_BACK_BUTTON = "detail_back_button"
+    const val DETAIL_LOADING_INDICATOR = "detail_loading_indicator"
+    const val DETAIL_ERROR_VIEW = "detail_error_view"
+    const val DETAIL_CONTENT_LIST = "detail_content_list"
+    const val DETAIL_ALBUM_ROW = "detail_album_row"
+    const val DETAIL_EMPTY_ALBUMS = "detail_empty_albums"
 }

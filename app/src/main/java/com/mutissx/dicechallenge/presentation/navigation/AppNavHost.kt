@@ -7,8 +7,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.mutissx.dicechallenge.presentation.detail.ArtistDetailScreen
-import com.mutissx.dicechallenge.presentation.detail.ArtistDetailViewModel
+import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailScreen
+import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
 import com.mutissx.dicechallenge.presentation.search.screen.SearchScreen
 import com.mutissx.dicechallenge.presentation.search.viewmodel.SearchViewModel
 import org.koin.androidx.compose.koinViewModel

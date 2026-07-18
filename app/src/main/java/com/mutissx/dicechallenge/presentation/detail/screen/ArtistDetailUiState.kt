@@ -1,4 +1,4 @@
-package com.mutissx.dicechallenge.presentation.detail
+package com.mutissx.dicechallenge.presentation.detail.screen
 
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup

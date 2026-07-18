@@ -1,13 +1,15 @@
-package com.mutissx.dicechallenge.presentation.detail
+package com.mutissx.dicechallenge.presentation.detail.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mutissx.dicechallenge.R
-import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
-import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
+import com.mutissx.dicechallenge.core.domain.Result
 import com.mutissx.dicechallenge.core.ui.UiText
 import com.mutissx.dicechallenge.core.ui.extensions.asUiText
+import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
+import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
+import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailUiState
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -15,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.mutissx.dicechallenge.core.domain.Result
 
 class ArtistDetailViewModel(
     savedStateHandle: SavedStateHandle,

@@ -1,6 +1,6 @@
 package com.mutissx.dicechallenge.di
 
-import com.mutissx.dicechallenge.presentation.detail.ArtistDetailViewModel
+import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
 import com.mutissx.dicechallenge.presentation.search.viewmodel.SearchViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
