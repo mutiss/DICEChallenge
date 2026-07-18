@@ -7,6 +7,8 @@ import androidx.paging.PagingState
 import com.mutissx.dicechallenge.data.remote.api.MusicBrainzApi
 import com.mutissx.dicechallenge.data.remote.model.ArtistDto
 import com.mutissx.dicechallenge.data.remote.model.ArtistSearchResponseDto
+import com.mutissx.dicechallenge.core.domain.DataError
+import com.mutissx.dicechallenge.core.domain.DataException
 import com.mutissx.dicechallenge.domain.model.Artist
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -125,7 +127,7 @@ class ArtistSearchPagingSourceTest {
     }
 
     @Test
-    fun `given api throws IOException, when load is called, then returns LoadResult Error with the throwable`() = runTest {
+    fun `given api throws IOException, when load is called, then returns LoadResult Error wrapping a DataException with NO_INTERNET`() = runTest {
         // Given
         val error = IOException("Network failure")
         coEvery { mockApi.searchArtists(query, any(), 0) } throws error
@@ -135,7 +137,9 @@ class ArtistSearchPagingSourceTest {
 
         // Then
         assertTrue(result is LoadResult.Error)
-        assertEquals(error, (result as LoadResult.Error).throwable)
+        val wrapped = (result as LoadResult.Error).throwable
+        assertTrue(wrapped is DataException)
+        assertEquals(DataError.Network.NO_INTERNET, (wrapped as DataException).error)
     }
 
     @Test

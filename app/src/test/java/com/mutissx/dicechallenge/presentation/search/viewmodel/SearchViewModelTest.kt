@@ -1,8 +1,12 @@
 package com.mutissx.dicechallenge.presentation.search.viewmodel
 
 import app.cash.turbine.test
+import com.mutissx.dicechallenge.R
+import com.mutissx.dicechallenge.core.domain.DataError
+import com.mutissx.dicechallenge.core.domain.DataException
 import com.mutissx.dicechallenge.domain.usecase.SearchArtistsUseCase
 import com.mutissx.dicechallenge.fake.FakeArtistRepository
+import com.mutissx.dicechallenge.core.ui.UiText
 import com.mutissx.dicechallenge.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -187,4 +191,30 @@ class SearchViewModelTest {
             // Then — clear routes to PagingData.empty(), not to repository
             assertEquals(callsAfterFirstQuery, fakeRepository.queriesReceived.size)
         }
+
+    // ---- errorMessage tests ----
+
+    @Test
+    fun `given a DataException wrapping a network error, when errorMessage is called, then the wrapped error's UiText is returned`() {
+        // Given
+        val throwable = DataException(DataError.Network.NO_INTERNET)
+
+        // When
+        val uiText = viewModel.errorMessage(throwable)
+
+        // Then
+        assertEquals(R.string.no_internet, (uiText as UiText.StringResource).resId)
+    }
+
+    @Test
+    fun `given a throwable that is not a DataException, when errorMessage is called, then the generic search error UiText is returned`() {
+        // Given
+        val throwable = RuntimeException("unexpected")
+
+        // When
+        val uiText = viewModel.errorMessage(throwable)
+
+        // Then
+        assertEquals(R.string.search_error_generic, (uiText as UiText.StringResource).resId)
+    }
 }

@@ -125,7 +125,7 @@ fun SearchScreen(
                 )
                 refresh is LoadState.Error -> ErrorView(
                     modifier = Modifier.testTag(TestTags.ERROR_VIEW),
-                    message = refresh.error.localizedMessage ?: stringResource(R.string.search_error_generic),
+                    message = viewModel.errorMessage(refresh.error).asString(),
                     onRetry = { items.retry() }
                 )
                 items.itemCount == 0 -> EmptyView(
