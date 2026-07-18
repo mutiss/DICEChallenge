@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import com.mutissx.dicechallenge.presentation.components.ArtistRow
 import com.mutissx.dicechallenge.presentation.components.EmptyView
 import com.mutissx.dicechallenge.presentation.components.ErrorView
 import com.mutissx.dicechallenge.presentation.components.LoadingView
+import com.mutissx.dicechallenge.presentation.components.TestTags
 import com.mutissx.dicechallenge.presentation.search.viewmodel.SearchViewModel
 
 @Composable
@@ -76,7 +78,10 @@ fun SearchScreen(
             },
             trailingIcon = {
                 if (query.isNotEmpty()) {
-                    IconButton(onClick = viewModel::onClearQuery) {
+                    IconButton(
+                        onClick = viewModel::onClearQuery,
+                        modifier = Modifier.testTag(TestTags.SEARCH_CLEAR_BUTTON)
+                    ) {
                         Icon(
                             Icons.Filled.Clear,
                             contentDescription = stringResource(R.string.clear_search_description),
@@ -101,7 +106,8 @@ fun SearchScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
-                .padding(bottom = 16.dp),
+                .padding(bottom = 16.dp)
+                .testTag(TestTags.SEARCH_TEXT_FIELD),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
         )
 
@@ -109,17 +115,28 @@ fun SearchScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             when {
                 query.trim().length < SearchViewModel.MIN_QUERY_LENGTH -> {
-                    EmptyView(message = stringResource(R.string.search_empty_start))
+                    EmptyView(
+                        modifier = Modifier.testTag(TestTags.EMPTY_VIEW_START),
+                        message = stringResource(R.string.search_empty_start)
+                    )
                 }
-                refresh is LoadState.Loading -> LoadingView()
+                refresh is LoadState.Loading -> LoadingView(
+                    modifier = Modifier.testTag(TestTags.INITIAL_LOADING_INDICATOR)
+                )
                 refresh is LoadState.Error -> ErrorView(
+                    modifier = Modifier.testTag(TestTags.ERROR_VIEW),
                     message = refresh.error.localizedMessage ?: stringResource(R.string.search_error_generic),
                     onRetry = { items.retry() }
                 )
-                items.itemCount == 0 -> EmptyView(message = stringResource(R.string.search_empty_no_results))
+                items.itemCount == 0 -> EmptyView(
+                    modifier = Modifier.testTag(TestTags.EMPTY_VIEW_NO_RESULTS),
+                    message = stringResource(R.string.search_empty_no_results)
+                )
                 else -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag(TestTags.SEARCH_RESULTS_LIST),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -130,11 +147,18 @@ fun SearchScreen(
                             val artist = items[index] ?: return@items
                             ArtistRow(
                                 artist = artist,
-                                onClick = { onArtistClick(artist.mbid) }
+                                onClick = { onArtistClick(artist.mbid) },
+                                modifier = Modifier.testTag(TestTags.ARTIST_ROW)
                             )
                         }
                         if (items.loadState.append is LoadState.Loading) {
-                            item { LoadingView(modifier = Modifier.padding(16.dp)) }
+                            item {
+                                LoadingView(
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .testTag(TestTags.APPEND_LOADING_INDICATOR)
+                                )
+                            }
                         }
                     }
                 }
