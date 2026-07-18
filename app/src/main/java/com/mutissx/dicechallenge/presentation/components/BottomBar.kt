@@ -28,8 +28,8 @@ private data class BottomTab(
 )
 
 private val tabs = listOf(
-    BottomTab(Destination.Search, R.string.nav_search, Icons.Filled.Search),
-    BottomTab(Destination.Favorites, R.string.nav_favorites, Icons.Filled.Favorite)
+    BottomTab(Destination.Search, R.string.nav_search_title, Icons.Filled.Search),
+    BottomTab(Destination.Favorites, R.string.nav_favorites_title, Icons.Filled.Favorite)
 )
 
 @Composable
