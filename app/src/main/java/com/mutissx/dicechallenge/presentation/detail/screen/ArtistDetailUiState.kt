@@ -9,6 +9,7 @@ sealed interface ArtistDetailUiState {
     data class Error(val message: UiText) : ArtistDetailUiState
     data class Content(
         val artist: Artist,
-        val releaseGroups: List<ReleaseGroup>
+        val releaseGroups: List<ReleaseGroup>,
+        val isFavorite: Boolean
     ) : ArtistDetailUiState
 }

@@ -19,7 +19,6 @@ import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewM
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import com.mutissx.dicechallenge.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -218,9 +217,9 @@ class ArtistDetailViewModelTest {
             fakeRepository.artistResult = Result.Success(Artist(mbid, "Radiohead", null, null, null))
             fakeRepository.releaseGroupsResult = Result.Success(emptyList())
             val viewModel = createViewModel()
-            backgroundScope.launch { viewModel.isFavorite.collect { } }
             advanceUntilIdle()
-            assertFalse(viewModel.isFavorite.value)
+            val contentBefore = viewModel.uiState.value as ArtistDetailUiState.Content
+            assertFalse(contentBefore.isFavorite)
 
             // When
             viewModel.onFavoriteToggle()
@@ -228,7 +227,8 @@ class ArtistDetailViewModelTest {
 
             // Then
             assertEquals(listOf(mbid), fakeFavoritesRepository.addedArtists.map { it.mbid })
-            assertTrue(viewModel.isFavorite.value)
+            val contentAfter = viewModel.uiState.value as ArtistDetailUiState.Content
+            assertTrue(contentAfter.isFavorite)
         }
 
     @Test
@@ -240,9 +240,9 @@ class ArtistDetailViewModelTest {
             fakeRepository.releaseGroupsResult = Result.Success(emptyList())
             fakeFavoritesRepository.add(artist)
             val viewModel = createViewModel()
-            backgroundScope.launch { viewModel.isFavorite.collect { } }
             advanceUntilIdle()
-            assertTrue(viewModel.isFavorite.value)
+            val contentBefore = viewModel.uiState.value as ArtistDetailUiState.Content
+            assertTrue(contentBefore.isFavorite)
 
             // When
             viewModel.onFavoriteToggle()
@@ -250,7 +250,8 @@ class ArtistDetailViewModelTest {
 
             // Then
             assertEquals(listOf(mbid), fakeFavoritesRepository.removedMbids)
-            assertFalse(viewModel.isFavorite.value)
+            val contentAfter = viewModel.uiState.value as ArtistDetailUiState.Content
+            assertFalse(contentAfter.isFavorite)
         }
 
     @Test
@@ -284,7 +285,6 @@ class ArtistDetailViewModelTest {
             fakeRepository.releaseGroupsResult = Result.Success(emptyList())
             fakeFavoritesRepository.add(artist)
             val viewModel = createViewModel()
-            backgroundScope.launch { viewModel.isFavorite.collect { } }
             advanceUntilIdle()
 
             viewModel.favoriteMessages.test {

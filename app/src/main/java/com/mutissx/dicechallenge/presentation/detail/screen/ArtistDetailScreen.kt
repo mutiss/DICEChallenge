@@ -52,7 +52,6 @@ fun ArtistDetailScreen(
     viewModel: ArtistDetailViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val isFavorite by viewModel.isFavorite.collectAsState()
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -94,7 +93,7 @@ fun ArtistDetailScreen(
             )
         },
         floatingActionButton = {
-            (uiState as? ArtistDetailUiState.Content)?.let {
+            (uiState as? ArtistDetailUiState.Content)?.let { content ->
                 FloatingActionButton(
                     onClick = viewModel::onFavoriteToggle,
                     modifier = Modifier.testTag(TestTags.DETAIL_FAVORITE_BUTTON),
@@ -103,10 +102,10 @@ fun ArtistDetailScreen(
                     elevation = FloatingActionButtonDefaults.elevation(0.dp)
                 ) {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite
+                        imageVector = if (content.isFavorite) Icons.Filled.Favorite
                         else Icons.Outlined.FavoriteBorder,
                         contentDescription = stringResource(
-                            if (isFavorite) R.string.remove_from_favorites_description
+                            if (content.isFavorite) R.string.remove_from_favorites_description
                             else R.string.add_to_favorites_description
                         )
                     )
