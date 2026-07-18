@@ -12,16 +12,30 @@ android {
     defaultConfig {
         applicationId = "com.mutissx.dicechallenge"
         minSdk = 29
-        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        android.buildFeatures.buildConfig = true
     }
 
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://musicbrainz.org/ws/2/\""
+            )
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://musicbrainz.org/ws/2/\""
+            )
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -63,10 +77,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Networking
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.kotlinx.serialization.converter)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.bundles.networking)
 
     // Room
     implementation(libs.androidx.room.runtime)

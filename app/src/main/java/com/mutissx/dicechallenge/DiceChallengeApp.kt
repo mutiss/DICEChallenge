@@ -1,6 +1,10 @@
 package com.mutissx.dicechallenge
 
 import android.app.Application
+import com.mutissx.dicechallenge.di.dataModule
+import com.mutissx.dicechallenge.di.domainModule
+import com.mutissx.dicechallenge.di.networkModule
+import com.mutissx.dicechallenge.di.presentationlModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -12,7 +16,12 @@ class DiceChallengeApp : Application() {
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@DiceChallengeApp)
-            modules()
+            modules(
+                dataModule,
+                domainModule,
+                networkModule,
+                presentationlModule
+            )
         }
     }
 }

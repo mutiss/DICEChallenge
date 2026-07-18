@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">DICEChallenge</string>
-    <string name="nav_search">Search</string>
-    <string name="nav_favorites">Favorites</string>
+    <string name="nav_search_title">Search</string>
+    <string name="nav_favorites_title">Favorites</string>
+    <string name="search_placeholder">Search artists</string>
+    <string name="clear_search_description">Clear</string>
+    <string name="search_empty_start">Start typing to search artists.</string>
+    <string name="search_error_generic">Something went wrong.</string>
+    <string name="search_empty_no_results">No artists found.</string>
 </resources>
