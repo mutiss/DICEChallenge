@@ -1,6 +1,7 @@
 package com.mutissx.dicechallenge.presentation.detail
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.mutissx.dicechallenge.R
 import com.mutissx.dicechallenge.core.domain.DataError
 import com.mutissx.dicechallenge.core.domain.Result
@@ -9,15 +10,20 @@ import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
+import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
+import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.fake.FakeArtistRepository
+import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailUiState
 import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewModel
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import com.mutissx.dicechallenge.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -30,16 +36,22 @@ class ArtistDetailViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var fakeRepository: FakeArtistRepository
+    private lateinit var fakeFavoritesRepository: FakeFavoritesRepository
     private lateinit var getArtistDetailUseCase: GetArtistDetailUseCase
     private lateinit var getReleaseGroupsUseCase: GetArtistReleaseGroupsUseCase
+    private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private lateinit var isFavoriteUseCase: IsFavoriteUseCase
 
     private val mbid = "artist-123"
 
     @Before
     fun setUp() {
         fakeRepository = FakeArtistRepository()
+        fakeFavoritesRepository = FakeFavoritesRepository()
         getArtistDetailUseCase = GetArtistDetailUseCase(fakeRepository)
         getReleaseGroupsUseCase = GetArtistReleaseGroupsUseCase(fakeRepository)
+        toggleFavoriteUseCase = ToggleFavoriteUseCase(fakeFavoritesRepository)
+        isFavoriteUseCase = IsFavoriteUseCase(fakeFavoritesRepository)
     }
 
     private fun createViewModel(mbidValue: String? = mbid): ArtistDetailViewModel {
@@ -47,7 +59,9 @@ class ArtistDetailViewModelTest {
         return ArtistDetailViewModel(
             savedStateHandle,
             getArtistDetailUseCase,
-            getReleaseGroupsUseCase
+            getReleaseGroupsUseCase,
+            toggleFavoriteUseCase,
+            isFavoriteUseCase
         )
     }
 
@@ -186,6 +200,102 @@ class ArtistDetailViewModelTest {
     @Test(expected = IllegalArgumentException::class)
     fun `given a SavedStateHandle without the mbid argument, when viewModel is constructed, then it throws`() {
         val savedStateHandle = SavedStateHandle()
-        ArtistDetailViewModel(savedStateHandle, getArtistDetailUseCase, getReleaseGroupsUseCase)
+        ArtistDetailViewModel(
+            savedStateHandle,
+            getArtistDetailUseCase,
+            getReleaseGroupsUseCase,
+            toggleFavoriteUseCase,
+            isFavoriteUseCase
+        )
     }
+
+    // ---- favorite toggle tests ----
+
+    @Test
+    fun `given content loaded and not favorite, when onFavoriteToggle is called, then repository add is invoked and isFavorite becomes true`() =
+        runTest {
+            // Given
+            fakeRepository.artistResult = Result.Success(Artist(mbid, "Radiohead", null, null, null))
+            fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+            val viewModel = createViewModel()
+            backgroundScope.launch { viewModel.isFavorite.collect { } }
+            advanceUntilIdle()
+            assertFalse(viewModel.isFavorite.value)
+
+            // When
+            viewModel.onFavoriteToggle()
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(listOf(mbid), fakeFavoritesRepository.addedArtists.map { it.mbid })
+            assertTrue(viewModel.isFavorite.value)
+        }
+
+    @Test
+    fun `given content loaded and already favorite, when onFavoriteToggle is called, then repository remove is invoked and isFavorite becomes false`() =
+        runTest {
+            // Given
+            val artist = Artist(mbid, "Radiohead", null, null, null)
+            fakeRepository.artistResult = Result.Success(artist)
+            fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+            fakeFavoritesRepository.add(artist)
+            val viewModel = createViewModel()
+            backgroundScope.launch { viewModel.isFavorite.collect { } }
+            advanceUntilIdle()
+            assertTrue(viewModel.isFavorite.value)
+
+            // When
+            viewModel.onFavoriteToggle()
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(listOf(mbid), fakeFavoritesRepository.removedMbids)
+            assertFalse(viewModel.isFavorite.value)
+        }
+
+    @Test
+    fun `given an artist that is not favorite, when onFavoriteToggle is called, then favoriteMessages emits the added message with the artist name`() =
+        runTest {
+            // Given
+            val artist = Artist(mbid, "Radiohead", null, null, null)
+            fakeRepository.artistResult = Result.Success(artist)
+            fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.favoriteMessages.test {
+                // When
+                viewModel.onFavoriteToggle()
+
+                // Then
+                val message = awaitItem() as UiText.StringResource
+                assertEquals(R.string.favorite_added, message.resId)
+                assertEquals("Radiohead", message.args.first())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given an artist that is already favorite, when onFavoriteToggle is called, then favoriteMessages emits the removed message with the artist name`() =
+        runTest {
+            // Given
+            val artist = Artist(mbid, "Radiohead", null, null, null)
+            fakeRepository.artistResult = Result.Success(artist)
+            fakeRepository.releaseGroupsResult = Result.Success(emptyList())
+            fakeFavoritesRepository.add(artist)
+            val viewModel = createViewModel()
+            backgroundScope.launch { viewModel.isFavorite.collect { } }
+            advanceUntilIdle()
+
+            viewModel.favoriteMessages.test {
+                // When
+                viewModel.onFavoriteToggle()
+
+                // Then
+                val message = awaitItem() as UiText.StringResource
+                assertEquals(R.string.favorite_removed, message.resId)
+                assertEquals("Radiohead", message.args.first())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 }

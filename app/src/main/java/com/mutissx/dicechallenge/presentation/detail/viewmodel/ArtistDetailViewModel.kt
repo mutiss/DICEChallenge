@@ -14,11 +14,14 @@ import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailUiState
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -39,6 +42,9 @@ class ArtistDetailViewModel(
 
     val isFavorite: StateFlow<Boolean> = isFavoriteUseCase(mbid)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    private val _favoriteMessages = Channel<UiText>(Channel.BUFFERED)
+    val favoriteMessages: Flow<UiText> = _favoriteMessages.receiveAsFlow()
 
     init {
         loadInfo()
@@ -78,6 +84,8 @@ class ArtistDetailViewModel(
         val isFav = isFavorite.value
         viewModelScope.launch {
             toggleFavorite(current.artist, isFav)
+            val messageRes = if (isFav) R.string.favorite_removed else R.string.favorite_added
+            _favoriteMessages.send(UiText.StringResource(messageRes, current.artist.name))
         }
     }
 }
