@@ -20,6 +20,8 @@ import com.mutissx.dicechallenge.presentation.detail.viewmodel.ArtistDetailViewM
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import com.mutissx.dicechallenge.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -54,7 +56,9 @@ class ArtistDetailViewModelTest {
         isFavoriteUseCase = IsFavoriteUseCase(fakeFavoritesRepository)
     }
 
-    private fun createViewModel(mbidValue: String? = mbid): ArtistDetailViewModel {
+    // uiState is now SharingStarted.WhileSubscribed, so it only starts computing once it has an
+    // active collector — subscribe in the background so tests reading uiState.value see it update.
+    private fun TestScope.createViewModel(mbidValue: String? = mbid): ArtistDetailViewModel {
         val savedStateHandle = SavedStateHandle(mapOf(Destination.ArtistDetail.ARG_MBID to mbidValue))
         return ArtistDetailViewModel(
             savedStateHandle,
@@ -62,7 +66,9 @@ class ArtistDetailViewModelTest {
             getReleaseGroupsUseCase,
             toggleFavoriteUseCase,
             isFavoriteUseCase
-        )
+        ).also { viewModel ->
+            backgroundScope.launch { viewModel.uiState.collect { } }
+        }
     }
 
     @Test

@@ -7,12 +7,12 @@ import com.mutissx.dicechallenge.R
 import com.mutissx.dicechallenge.core.domain.Result
 import com.mutissx.dicechallenge.core.ui.UiText
 import com.mutissx.dicechallenge.core.ui.extensions.asUiText
-import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
 import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
 import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailUiState
+import com.mutissx.dicechallenge.presentation.detail.screen.ArtistSectionState
 import com.mutissx.dicechallenge.presentation.detail.screen.ReleaseGroupsState
 import com.mutissx.dicechallenge.presentation.navigation.Destination
 import kotlinx.coroutines.channels.Channel
@@ -31,19 +31,32 @@ class ArtistDetailViewModel(
     private val getReleaseGroupsUseCase: GetArtistReleaseGroupsUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
     isFavoriteUseCase: IsFavoriteUseCase
-    ) : ViewModel() {
+) : ViewModel() {
 
+    // Safe today: "mbid" is a required path segment (not a query arg) with a single call site
+    // that always passes a non-null Artist.mbid, and the manifest has no deep links, so this
+    // can only fail via a misconfigured navigation graph, not real user input.
+    // If a deep link into this screen is ever added, revisit this: (1) requireNotNull only
+    // guards against a *missing* key, not a present-but-blank string a malformed link could
+    // bind here, so add a blank check too, and (2) prefer surfacing a normal
+    // ArtistDetailUiState.Error instead of crashing, since the id would then come from
+    // untrusted external input rather than an internal invariant.
     private val mbid: String = requireNotNull(savedStateHandle[Destination.ArtistDetail.ARG_MBID]) {
         "mbid missing from arguments"
     }
 
     private val _artistState = MutableStateFlow<ArtistSectionState>(ArtistSectionState.Loading)
-    private val _releaseGroupsState = MutableStateFlow<ReleaseGroupsState>(ReleaseGroupsState.Loading)
+    private val _releaseGroupsState =
+        MutableStateFlow<ReleaseGroupsState>(ReleaseGroupsState.Loading)
 
-    // artist and release groups are fetched independently, so the combined state can't be lost
+    // Artist and release groups are fetched independently, so the combined state can't be lost
     // regardless of which of the two (or the favorite flow) resolves/emits first.
     val uiState: StateFlow<ArtistDetailUiState> =
-        combine(_artistState, _releaseGroupsState, isFavoriteUseCase(mbid)) { artist, releaseGroups, isFavorite ->
+        combine(
+            _artistState,
+            _releaseGroupsState,
+            isFavoriteUseCase(mbid)
+        ) { artist, releaseGroups, isFavorite ->
             when (artist) {
                 ArtistSectionState.Loading -> ArtistDetailUiState.Loading
                 is ArtistSectionState.Error -> ArtistDetailUiState.Error(artist.message)
@@ -53,7 +66,11 @@ class ArtistDetailViewModel(
                     releaseGroups = releaseGroups
                 )
             }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, ArtistDetailUiState.Loading)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ArtistDetailUiState.Loading
+        )
 
     private val _favoriteMessages = Channel<UiText>(Channel.BUFFERED)
     val favoriteMessages: Flow<UiText> = _favoriteMessages.receiveAsFlow()
@@ -96,16 +113,11 @@ class ArtistDetailViewModel(
             val message = if (result is Result.Error) {
                 result.error.asUiText()
             } else {
-                val messageRes = if (current.isFavorite) R.string.favorite_removed else R.string.favorite_added
+                val messageRes =
+                    if (current.isFavorite) R.string.favorite_removed else R.string.favorite_added
                 UiText.StringResource(messageRes, current.artist.name)
             }
             _favoriteMessages.send(message)
         }
-    }
-
-    private sealed interface ArtistSectionState {
-        data object Loading : ArtistSectionState
-        data class Error(val message: UiText) : ArtistSectionState
-        data class Loaded(val data: Artist) : ArtistSectionState
     }
 }

@@ -23,10 +23,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mutissx.dicechallenge.R
 import com.mutissx.dicechallenge.ui.theme.DiceAccent
+import com.mutissx.dicechallenge.ui.theme.DICEChallengeTheme
 
 @Composable
 fun LoadingView(modifier: Modifier = Modifier) {
@@ -102,7 +104,7 @@ fun EmptyView(
                 modifier = Modifier
                     .size(56.dp),
                 contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(DiceAccent)
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -112,5 +114,29 @@ fun EmptyView(
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+@Preview(showBackground = true, heightDp = 200)
+@Composable
+private fun LoadingViewPreview() {
+    DICEChallengeTheme {
+        LoadingView()
+    }
+}
+
+@Preview(showBackground = true, heightDp = 200)
+@Composable
+private fun ErrorViewPreview() {
+    DICEChallengeTheme {
+        ErrorView(message = "Something went wrong.", onRetry = {})
+    }
+}
+
+@Preview(showBackground = true, heightDp = 200)
+@Composable
+private fun EmptyViewPreview() {
+    DICEChallengeTheme {
+        EmptyView(message = "No results found.")
     }
 }

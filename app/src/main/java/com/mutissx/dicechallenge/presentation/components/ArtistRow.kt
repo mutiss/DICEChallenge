@@ -19,8 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mutissx.dicechallenge.domain.model.Artist
+import com.mutissx.dicechallenge.ui.theme.DICEChallengeTheme
 
 @Composable
 fun ArtistRow(
@@ -89,6 +91,23 @@ private fun ArtistInitial(name: String) {
             text = name.trim().firstOrNull()?.uppercase() ?: "?",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ArtistRowPreview() {
+    DICEChallengeTheme {
+        ArtistRow(
+            artist = Artist(
+                mbid = "preview-id",
+                name = "Radiohead",
+                country = "GB",
+                disambiguation = "British rock band",
+                score = 100
+            ),
+            onClick = {}
         )
     }
 }

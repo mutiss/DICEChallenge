@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
+import com.mutissx.dicechallenge.ui.theme.DICEChallengeTheme
 
 @Composable
 fun ReleaseGroupRow(
@@ -49,7 +52,7 @@ fun ReleaseGroupRow(
                 contentDescription = releaseGroup.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
-                loading = { CoverPlaceholder() },
+                loading = { CoverLoading() },
                 error = { CoverPlaceholder() }
             )
         }
@@ -91,6 +94,36 @@ private fun CoverPlaceholder() {
             imageVector = Icons.Filled.MusicNote,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun CoverLoading() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(24.dp),
+            strokeWidth = 2.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ReleaseGroupRowPreview() {
+    DICEChallengeTheme {
+        ReleaseGroupRow(
+            releaseGroup = ReleaseGroup(
+                mbid = "preview-id",
+                title = "OK Computer",
+                firstReleaseYear = "1997",
+                primaryType = "Album",
+                coverArtUrl = ""
+            )
         )
     }
 }

@@ -2,9 +2,8 @@ package com.mutissx.dicechallenge.presentation.favorites.screen
 
 import com.mutissx.dicechallenge.domain.model.Artist
 
-
-data class FavoritesUiState(
-    val isLoading: Boolean = true,
-    val favorites: List<Artist> = emptyList(),
-    val isError: Boolean = false
-)
+sealed interface FavoritesUiState {
+    data object Loading : FavoritesUiState
+    data object Error : FavoritesUiState
+    data class Content(val favorites: List<Artist>) : FavoritesUiState
+}
