@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">DICEChallenge</string>
+    <string name="nav_search_title">Search</string>
+    <string name="nav_favorites_title">Favorites</string>
+    <string name="search_placeholder">Search artists</string>
+    <string name="clear_search_description">Clear</string>
+    <string name="search_empty_start">Start typing to search artists.</string>
+    <string name="search_error_generic">Something went wrong.</string>
+    <string name="search_empty_no_results">No artists found.</string>
+
+    <string name="retry">Retry</string>
+
+    <string name="detail_title">Artist Detail</string>
+    <string name="back_button_description">Go back</string>
+    <string name="detail_albums_section">Albums</string>
+    <string name="detail_empty_albums">No albums found for this artist.</string>
+    <string name="add_to_favorites_description">Add to favorites</string>
+    <string name="remove_from_favorites_description">Remove from favorites</string>
+    <string name="favorite_added">%1$s added to favorites</string>
+    <string name="favorite_removed">%1$s removed from favorites</string>
+    <string name="favorite_toggle_error">Couldn\'t update favorites. Please try again.</string>
+    <string name="favorites_empty">No favorites yet. Search for an artist and tap the heart to add one.</string>
+    <string name="favorites_error_generic">Couldn\'t load your favorites. Please try again.</string>
+
+    <string name="timed_out">The request timed out</string>
+    <string name="no_internet">Couldn\'t reach server. Check your internet connection.</string>
+    <string name="not_found">The requested content could not be found.</string>
+    <string name="server_error">Oops, something went wrong. Please try again.</string>
+    <string name="unauthorized">You don\'t have permissions. Please try again.</string>
+    <string name="unknown_error">An unknown error occurred</string>
+
 </resources>
