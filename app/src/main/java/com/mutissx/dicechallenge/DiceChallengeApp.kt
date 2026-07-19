@@ -11,13 +11,12 @@ import com.mutissx.dicechallenge.di.networkModule
 import com.mutissx.dicechallenge.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
 private const val IMAGE_CACHE_NAME = "dice_challenge_image_cache"
 
-class DiceChallengeApp : Application(), ImageLoaderFactory, KoinComponent {
+class DiceChallengeApp : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
