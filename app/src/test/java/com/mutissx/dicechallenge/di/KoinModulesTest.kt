@@ -13,12 +13,14 @@ import org.koin.test.verify.verify
  * moved between modules, or a forgotten binding — at test time instead of an app-launch
  * crash.
  *
- * Whitelisted extra types, both false positives from verify()'s "check every public
+ * Whitelisted extra types, all false positives from verify()'s "check every public
  * constructor" reflection rather than real gaps in our bindings:
  * - `SavedStateHandle` is supplied at runtime via Koin's parametersOf mechanism
  *   (`it.get()` in ArtistDetailViewModel's `viewModel { }` block), not a module binding.
  * - `HttpLoggingInterceptor.Logger` is an optional parameter on a constructor overload of
  *   OkHttp's HttpLoggingInterceptor that we never call (we use the no-arg constructor).
+ * - `String` is UserAgentInterceptor's constructor parameter, satisfied with the literal
+ *   USER_AGENT constant (`single { UserAgentInterceptor(USER_AGENT) }`), not a module binding.
  */
 class KoinModulesTest {
 
@@ -26,6 +28,6 @@ class KoinModulesTest {
     fun `given all app Koin modules combined, when verified, then every dependency resolves`() {
         module {
             includes(dataModule, databaseModule, domainModule, networkModule, presentationModule)
-        }.verify(extraTypes = listOf(SavedStateHandle::class, HttpLoggingInterceptor.Logger::class))
+        }.verify(extraTypes = listOf(SavedStateHandle::class, HttpLoggingInterceptor.Logger::class, String::class))
     }
 }

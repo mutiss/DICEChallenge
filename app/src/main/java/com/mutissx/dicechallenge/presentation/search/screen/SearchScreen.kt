@@ -144,7 +144,7 @@ private fun SearchResultsList(
     val refresh = items.loadState.refresh
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            query.trim().length < SearchViewModel.MIN_QUERY_LENGTH -> {
+            SearchViewModel.isQueryTooShort(query) -> {
                 EmptyView(
                     modifier = Modifier.testTag(TestTags.EMPTY_VIEW_START),
                     message = stringResource(R.string.search_empty_start)

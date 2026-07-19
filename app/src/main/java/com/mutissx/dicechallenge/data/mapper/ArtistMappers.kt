@@ -24,6 +24,6 @@ fun FavoriteArtistEntity.toDomain(): Artist = Artist(
     mbid = mbid,
     name = name,
     country = country,
-    disambiguation = disambiguation,
+    disambiguation = disambiguation?.takeIf { it.isNotBlank() },
     score = null
 )

@@ -33,21 +33,24 @@ class ArtistSearchPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Artist> {
         val offset = params.key ?: 0
         return try {
-            val response = withContext(dispatcher) {
-                api.searchArtists(
+            withContext(dispatcher) {
+                val response = api.searchArtists(
                     query = query,
                     limit = PAGE_SIZE,
                     offset = offset
                 )
+                val rawItems = response.artists.map { it.toDomain() }
+                // If every mbid on this page was already seen on a prior page (see the dedup note
+                // above), items can legitimately come back empty while nextKey is still non-null —
+                // that's expected, not a bug: Paging will trigger another load for the next offset.
+                val items = rawItems.filter { seenMbids.add(it.mbid) }
+                val nextOffset = offset + rawItems.size
+                LoadResult.Page(
+                    data = items,
+                    prevKey = if (offset == 0) null else (offset - PAGE_SIZE).coerceAtLeast(0),
+                    nextKey = if (rawItems.isEmpty() || nextOffset >= response.count) null else nextOffset
+                )
             }
-            val rawItems = response.artists.map { it.toDomain() }
-            val items = rawItems.filter { seenMbids.add(it.mbid) }
-            val nextOffset = offset + rawItems.size
-            LoadResult.Page(
-                data = items,
-                prevKey = if (offset == 0) null else (offset - PAGE_SIZE).coerceAtLeast(0),
-                nextKey = if (rawItems.isEmpty() || nextOffset >= response.count) null else nextOffset
-            )
         } catch (t: Throwable) {
             if (t is CancellationException) throw t
             LoadResult.Error(DataException(t.toNetworkError()))

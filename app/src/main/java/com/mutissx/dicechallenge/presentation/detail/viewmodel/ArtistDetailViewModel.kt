@@ -9,7 +9,7 @@ import com.mutissx.dicechallenge.core.ui.UiText
 import com.mutissx.dicechallenge.core.ui.extensions.asUiText
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
-import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
+import com.mutissx.dicechallenge.domain.usecase.ObserveIsFavoriteUseCase
 import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistDetailUiState
 import com.mutissx.dicechallenge.presentation.detail.screen.ArtistSectionState
@@ -30,7 +30,7 @@ class ArtistDetailViewModel(
     private val getArtistDetailUseCase: GetArtistDetailUseCase,
     private val getReleaseGroupsUseCase: GetArtistReleaseGroupsUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
-    isFavoriteUseCase: IsFavoriteUseCase
+    isFavoriteUseCase: ObserveIsFavoriteUseCase
 ) : ViewModel() {
 
     // Safe today: "mbid" is a required path segment (not a query arg) with a single call site

@@ -26,7 +26,7 @@ interface MusicBrainzApi {
     @GET("release-group")
     suspend fun getReleaseGroups(
         @Query("artist") artistMbid: String,
-        @Query("type") type: String = "album",
+        @Query("type") type: String = ALBUM_TYPE,
         @Query("limit") limit: Int = 100,
         @Query("offset") offset: Int = 0,
         @Query("fmt") format: String = JSON_FMT
@@ -34,5 +34,6 @@ interface MusicBrainzApi {
 
     companion object {
         const val JSON_FMT = "json"
+        const val ALBUM_TYPE = "album"
     }
 }

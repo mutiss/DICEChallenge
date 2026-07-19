@@ -24,7 +24,7 @@
 
     <string name="timed_out">The request timed out</string>
     <string name="no_internet">Couldn\'t reach server. Check your internet connection.</string>
-    <string name="not_found">Not found. Check your internet connection.</string>
+    <string name="not_found">The requested content could not be found.</string>
     <string name="server_error">Oops, something went wrong. Please try again.</string>
     <string name="unauthorized">You don\'t have permissions. Please try again.</string>
     <string name="unknown_error">An unknown error occurred</string>

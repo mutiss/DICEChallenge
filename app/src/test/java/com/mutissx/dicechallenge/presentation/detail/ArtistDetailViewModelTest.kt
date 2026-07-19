@@ -10,7 +10,7 @@ import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
-import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
+import com.mutissx.dicechallenge.domain.usecase.ObserveIsFavoriteUseCase
 import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.fake.FakeArtistRepository
 import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
@@ -42,7 +42,7 @@ class ArtistDetailViewModelTest {
     private lateinit var getArtistDetailUseCase: GetArtistDetailUseCase
     private lateinit var getReleaseGroupsUseCase: GetArtistReleaseGroupsUseCase
     private lateinit var toggleFavoriteUseCase: ToggleFavoriteUseCase
-    private lateinit var isFavoriteUseCase: IsFavoriteUseCase
+    private lateinit var isFavoriteUseCase: ObserveIsFavoriteUseCase
 
     private val mbid = "artist-123"
 
@@ -53,7 +53,7 @@ class ArtistDetailViewModelTest {
         getArtistDetailUseCase = GetArtistDetailUseCase(fakeRepository)
         getReleaseGroupsUseCase = GetArtistReleaseGroupsUseCase(fakeRepository)
         toggleFavoriteUseCase = ToggleFavoriteUseCase(fakeFavoritesRepository)
-        isFavoriteUseCase = IsFavoriteUseCase(fakeFavoritesRepository)
+        isFavoriteUseCase = ObserveIsFavoriteUseCase(fakeFavoritesRepository)
     }
 
     // uiState is now SharingStarted.WhileSubscribed, so it only starts computing once it has an
