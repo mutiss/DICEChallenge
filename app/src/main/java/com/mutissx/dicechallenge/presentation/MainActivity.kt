@@ -1,6 +1,6 @@
-package com.mutissx.dicechallenge
+package com.mutissx.dicechallenge.presentation
 
-import android.graphics.Color.TRANSPARENT
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -21,8 +21,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(TRANSPARENT)
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
         )
         setContent {
             DICEChallengeTheme {
