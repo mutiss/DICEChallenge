@@ -2,6 +2,7 @@ package com.mutissx.dicechallenge.presentation.favorites.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.usecase.ObserveFavoritesUseCase
 import com.mutissx.dicechallenge.presentation.favorites.screen.FavoritesUiState
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,11 +16,11 @@ class FavoritesViewModel(
 ) : ViewModel() {
 
     val uiState: StateFlow<FavoritesUiState> = observeFavorites()
-        .map { FavoritesUiState(isLoading = false, favorites = it) }
-        .catch { emit(FavoritesUiState(isLoading = false, isError = true)) }
+        .map<List<Artist>, FavoritesUiState> { FavoritesUiState.Content(it) }
+        .catch { emit(FavoritesUiState.Error) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = FavoritesUiState()
+            initialValue = FavoritesUiState.Loading
         )
 }

@@ -3,6 +3,7 @@ package com.mutissx.dicechallenge.presentation.favorites
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.usecase.ObserveFavoritesUseCase
 import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
+import com.mutissx.dicechallenge.presentation.favorites.screen.FavoritesUiState
 import com.mutissx.dicechallenge.presentation.favorites.viewmodel.FavoritesViewModel
 import com.mutissx.dicechallenge.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,7 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -32,13 +32,12 @@ class FavoritesViewModelTest {
     }
 
     @Test
-    fun `given viewModel just created, when uiState is observed before collection starts, then the initial state is loading with no favorites`() {
-        assertTrue(viewModel.uiState.value.isLoading)
-        assertTrue(viewModel.uiState.value.favorites.isEmpty())
+    fun `given viewModel just created, when uiState is observed before collection starts, then the initial state is Loading`() {
+        assertTrue(viewModel.uiState.value is FavoritesUiState.Loading)
     }
 
     @Test
-    fun `given no favorites in the repository, when uiState is collected, then it emits a non-loading state with an empty list`() =
+    fun `given no favorites in the repository, when uiState is collected, then it emits Content with an empty list`() =
         runTest {
             // Given / When
             backgroundScope.launch { viewModel.uiState.collect { } }
@@ -46,8 +45,8 @@ class FavoritesViewModelTest {
 
             // Then
             val state = viewModel.uiState.value
-            assertFalse(state.isLoading)
-            assertTrue(state.favorites.isEmpty())
+            assertTrue(state is FavoritesUiState.Content)
+            assertTrue((state as FavoritesUiState.Content).favorites.isEmpty())
         }
 
     @Test
@@ -62,7 +61,9 @@ class FavoritesViewModelTest {
             advanceUntilIdle()
 
             // Then
-            assertEquals(listOf(artist), viewModel.uiState.value.favorites)
+            val state = viewModel.uiState.value
+            assertTrue(state is FavoritesUiState.Content)
+            assertEquals(listOf(artist), (state as FavoritesUiState.Content).favorites)
         }
 
     @Test
@@ -71,7 +72,7 @@ class FavoritesViewModelTest {
             // Given
             backgroundScope.launch { viewModel.uiState.collect { } }
             advanceUntilIdle()
-            assertTrue(viewModel.uiState.value.favorites.isEmpty())
+            assertTrue((viewModel.uiState.value as FavoritesUiState.Content).favorites.isEmpty())
 
             // When
             val artist = Artist(mbid = "id-1", name = "Radiohead", country = null, disambiguation = null, score = null)
@@ -79,7 +80,7 @@ class FavoritesViewModelTest {
             advanceUntilIdle()
 
             // Then
-            assertEquals(listOf(artist), viewModel.uiState.value.favorites)
+            assertEquals(listOf(artist), (viewModel.uiState.value as FavoritesUiState.Content).favorites)
         }
 
     @Test
@@ -90,18 +91,18 @@ class FavoritesViewModelTest {
             fakeRepository.add(artist)
             backgroundScope.launch { viewModel.uiState.collect { } }
             advanceUntilIdle()
-            assertEquals(listOf(artist), viewModel.uiState.value.favorites)
+            assertEquals(listOf(artist), (viewModel.uiState.value as FavoritesUiState.Content).favorites)
 
             // When
             fakeRepository.remove(artist.mbid)
             advanceUntilIdle()
 
             // Then
-            assertTrue(viewModel.uiState.value.favorites.isEmpty())
+            assertTrue((viewModel.uiState.value as FavoritesUiState.Content).favorites.isEmpty())
         }
 
     @Test
-    fun `given the repository read fails, when uiState is collected, then it emits a non-loading error state instead of crashing`() =
+    fun `given the repository read fails, when uiState is collected, then it emits Error instead of crashing`() =
         runTest {
             // Given — a separate repository/viewModel instance so readError is set before uiState's pipeline is built
             val failingRepository = FakeFavoritesRepository().apply {
@@ -114,9 +115,6 @@ class FavoritesViewModelTest {
             advanceUntilIdle()
 
             // Then
-            val state = failingViewModel.uiState.value
-            assertFalse(state.isLoading)
-            assertTrue(state.isError)
-            assertTrue(state.favorites.isEmpty())
+            assertTrue(failingViewModel.uiState.value is FavoritesUiState.Error)
         }
 }

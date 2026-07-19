@@ -76,6 +76,8 @@ val networkModule = module {
         }
     }
 
+    single { UserAgentInterceptor(USER_AGENT) }
+
     single {
         OkHttpClient.Builder()
             .cache(
@@ -84,7 +86,7 @@ val networkModule = module {
                     maxSize = 20L * 1024L * 1024L
                 )
             )
-            .addInterceptor(UserAgentInterceptor(USER_AGENT))
+            .addInterceptor(get<UserAgentInterceptor>())
             .addNetworkInterceptor(ForceCacheInterceptor())
             .addInterceptor(get<HttpLoggingInterceptor>())
             .connectTimeout(15, TimeUnit.SECONDS)

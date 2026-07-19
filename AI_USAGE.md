@@ -6,8 +6,8 @@ This document discloses which AI assistants were used while building this projec
 - Writing unit tests and UI tests entirely: with this help, the majority of edge cases and scenarios were covered easily
 - Generation of testTags for UI tests and accesibility
 - Generation of `AI_USAGE.md` file and the `README.md` file
-- Auditing the codebase and suggesting improvements
-- Generating some composables, such as `StatusViews` and `BottomBar`
+- Auditing the codebase and suggesting and applying improvements
+- Generating some composables, such as `StatusViews`, `BottomBar`, `ArtistRow` and `ReleaseGroupRow` and previews
 
 ## ChatGPT
 - Architecture discussions

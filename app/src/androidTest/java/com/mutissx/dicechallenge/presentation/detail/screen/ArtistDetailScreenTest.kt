@@ -15,7 +15,7 @@ import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.usecase.GetArtistDetailUseCase
 import com.mutissx.dicechallenge.domain.usecase.GetArtistReleaseGroupsUseCase
-import com.mutissx.dicechallenge.domain.usecase.IsFavoriteUseCase
+import com.mutissx.dicechallenge.domain.usecase.ObserveIsFavoriteUseCase
 import com.mutissx.dicechallenge.domain.usecase.ToggleFavoriteUseCase
 import com.mutissx.dicechallenge.fake.FakeArtistRepository
 import com.mutissx.dicechallenge.fake.FakeFavoritesRepository
@@ -66,7 +66,7 @@ class ArtistDetailScreenTest {
             getArtistDetailUseCase = GetArtistDetailUseCase(fakeRepository),
             getReleaseGroupsUseCase = GetArtistReleaseGroupsUseCase(fakeRepository),
             toggleFavorite = ToggleFavoriteUseCase(fakeFavoritesRepository),
-            isFavoriteUseCase = IsFavoriteUseCase(fakeFavoritesRepository)
+            isFavoriteUseCase = ObserveIsFavoriteUseCase(fakeFavoritesRepository)
         )
         composeTestRule.setContent {
             ArtistDetailScreen(onBack = { backClicked = true }, viewModel = viewModel)

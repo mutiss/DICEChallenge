@@ -33,12 +33,11 @@ class SearchViewModel(
     val results: Flow<PagingData<Artist>> = _query
         .map { query -> query.trim() }
         .debounce { query ->
-            if (query.length < MIN_QUERY_LENGTH) 0L
-            else SEARCH_DEBOUNCE_MS
+            if (isQueryTooShort(query)) 0L else SEARCH_DEBOUNCE_MS
         }
         .distinctUntilChanged()
         .flatMapLatest { query ->
-            if (query.length < MIN_QUERY_LENGTH) {
+            if (isQueryTooShort(query)) {
                 flowOf(PagingData.empty())
             } else {
                 searchArtistsUseCase(query)
@@ -62,5 +61,7 @@ class SearchViewModel(
         const val EMPTY_VALUE = ""
         const val MIN_QUERY_LENGTH = 2
         private const val SEARCH_DEBOUNCE_MS = 400L
+
+        fun isQueryTooShort(query: String): Boolean = query.trim().length < MIN_QUERY_LENGTH
     }
 }

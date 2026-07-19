@@ -19,3 +19,9 @@ sealed interface ReleaseGroupsState {
     data class Loaded(val items: List<ReleaseGroup>) : ReleaseGroupsState
     data class Error(val message: UiText) : ReleaseGroupsState
 }
+
+sealed interface ArtistSectionState {
+    data object Loading : ArtistSectionState
+    data class Error(val message: UiText) : ArtistSectionState
+    data class Loaded(val data: Artist) : ArtistSectionState
+}

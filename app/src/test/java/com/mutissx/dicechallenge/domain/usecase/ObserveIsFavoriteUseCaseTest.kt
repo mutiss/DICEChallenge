@@ -11,15 +11,15 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class IsFavoriteUseCaseTest {
+class ObserveIsFavoriteUseCaseTest {
 
     private lateinit var fakeRepository: FakeFavoritesRepository
-    private lateinit var useCase: IsFavoriteUseCase
+    private lateinit var useCase: ObserveIsFavoriteUseCase
 
     @Before
     fun setUp() {
         fakeRepository = FakeFavoritesRepository()
-        useCase = IsFavoriteUseCase(fakeRepository)
+        useCase = ObserveIsFavoriteUseCase(fakeRepository)
     }
 
     @Test
