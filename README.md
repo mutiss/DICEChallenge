@@ -5,6 +5,10 @@ Search for an artist, view their profile and discography, and save favorites loc
 offline access. Built with Kotlin and Jetpack Compose, following Clean Architecture principles
 with a reactive, `Flow`/`StateFlow`-driven UI layer.
 
+<p align="center">
+  <img src="images/icon.png" width="120" alt="App icon" />
+</p>
+
 ---
 
 ## 📸 Screenshots
@@ -91,20 +95,7 @@ feature module physically cannot depend on another feature module by accident), 
 more build-config overhead — worth it once there are enough features/contributors for that to
 outweigh the added ceremony, not before.
 
-### 2. Explicit `Dispatchers.IO` at the data-layer boundary
-
-**Decision:** All suspend network/DB calls run through two small wrappers,
-`core/data/SafeApiCall.kt` and `core/data/SafeDbCall.kt`, which apply `withContext(Dispatchers.IO)`
-(injectable, defaulting to `Dispatchers.IO`) around the call. Repository `Flow`s apply `flowOn`
-for the same reason.
-
-**Rationale:** Retrofit and Room already hop off the calling thread internally, so this wasn't
-fixing a live bug — it closes a gap where nothing in the codebase pinned I/O work to a
-background dispatcher. Without it, any future call-site closure that does real blocking work
-would silently run on whatever dispatcher the caller happens to be on (potentially `Main`).
-Centralizing it in the two wrappers means every repository call gets it automatically.
-
-### 3. Offline-first favorites
+### 2. Offline-first favorites
 
 **Decision:** `FavoritesRepositoryImpl` treats the local Room database as the source of truth.
 `observeAll()` and `observeIsFavorite()` are reactive `Flow`s driven directly by Room queries.
@@ -115,7 +106,7 @@ means the favorite heart icon, the favorites list, and any other observer of fav
 stay in sync automatically whenever the underlying table changes, with no polling or manual
 invalidation.
 
-### 4. Independent, section-level loading on the Artist Detail screen
+### 3. Independent, section-level loading on the Artist Detail screen
 
 **Decision:** On the Artist Detail screen, the artist header and the discography (albums)
 section are fetched, loaded, and retried **independently** of each other. `ArtistDetailViewModel`
@@ -130,7 +121,7 @@ artist's name, country, and basic info had already loaded successfully. Splittin
 artist header render as soon as it's ready and gives the albums section its own inline
 error/retry, independent of the artist call's outcome.
 
-### 5. Per-endpoint HTTP caching
+### 4. Per-endpoint HTTP caching
 
 **Decision:** A custom OkHttp `Cache` plus a `ForceCacheInterceptor` (in `di/NetworkModule.kt`)
 rewrite the `Cache-Control` header on successful `GET` responses, applying a different max-age
@@ -141,7 +132,7 @@ discography data changes infrequently. Forcing endpoint-specific cache lifetimes
 network calls (e.g. re-opening the same artist's detail screen) without needing a separate
 in-app caching layer.
 
-### 6. Centralized dependency management via Gradle Version Catalog
+### 5. Centralized dependency management via Gradle Version Catalog
 
 **Decision:** All dependency coordinates and versions live in `gradle/libs.versions.toml`.
 
