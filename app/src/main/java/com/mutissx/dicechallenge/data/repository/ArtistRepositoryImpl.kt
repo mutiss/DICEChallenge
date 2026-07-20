@@ -3,18 +3,18 @@ package com.mutissx.dicechallenge.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.mutissx.dicechallenge.core.data.safeApiCall
+import com.mutissx.dicechallenge.core.domain.DataError
+import com.mutissx.dicechallenge.core.domain.Result
 import com.mutissx.dicechallenge.data.mapper.toDomain
 import com.mutissx.dicechallenge.data.paging.ArtistSearchPagingSource
 import com.mutissx.dicechallenge.data.remote.api.MusicBrainzApi
-import com.mutissx.dicechallenge.core.data.safeApiCall
-import com.mutissx.dicechallenge.core.domain.DataError
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.repository.ArtistRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import com.mutissx.dicechallenge.core.domain.Result
 
 class ArtistRepositoryImpl(
     private val api: MusicBrainzApi,
@@ -26,6 +26,7 @@ class ArtistRepositoryImpl(
             config = PagingConfig(
                 pageSize = ArtistSearchPagingSource.PAGE_SIZE,
                 initialLoadSize = ArtistSearchPagingSource.PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE_PAGINATION, //Remove if we want smoother infinite scroll
                 enablePlaceholders = false
             ),
             pagingSourceFactory = { ArtistSearchPagingSource(api, query, dispatcher) }
@@ -41,4 +42,8 @@ class ArtistRepositoryImpl(
                 .map { it.toDomain() }
                 .sortedByDescending { it.firstReleaseYear.orEmpty() }
         }
+
+    companion object {
+        private const val PREFETCH_DISTANCE_PAGINATION = 2
+    }
 }
