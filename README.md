@@ -5,6 +5,10 @@ Search for an artist, view their profile and discography, and save favorites loc
 offline access. Built with Kotlin and Jetpack Compose, following Clean Architecture principles
 with a reactive, `Flow`/`StateFlow`-driven UI layer.
 
+<p align="center">
+  <img src="images/icon.png" width="120" alt="App icon" />
+</p>
+
 ---
 
 ## 📸 Screenshots
