@@ -12,13 +12,10 @@ import com.mutissx.dicechallenge.data.remote.api.MusicBrainzApi
 import com.mutissx.dicechallenge.domain.model.Artist
 import com.mutissx.dicechallenge.domain.model.ReleaseGroup
 import com.mutissx.dicechallenge.domain.repository.ArtistRepository
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 class ArtistRepositoryImpl(
-    private val api: MusicBrainzApi,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val api: MusicBrainzApi
 ) : ArtistRepository {
 
     override fun searchArtists(query: String): Flow<PagingData<Artist>> =
@@ -29,14 +26,14 @@ class ArtistRepositoryImpl(
                 prefetchDistance = PREFETCH_DISTANCE_PAGINATION, //Remove if we want smoother infinite scroll
                 enablePlaceholders = false
             ),
-            pagingSourceFactory = { ArtistSearchPagingSource(api, query, dispatcher) }
+            pagingSourceFactory = { ArtistSearchPagingSource(api, query) }
         ).flow
 
     override suspend fun getArtist(mbid: String): Result<Artist, DataError.Network> =
-        safeApiCall(dispatcher) { api.getArtist(mbid).toDomain() }
+        safeApiCall { api.getArtist(mbid).toDomain() }
 
     override suspend fun getReleaseGroups(mbid: String): Result<List<ReleaseGroup>, DataError.Network> =
-        safeApiCall(dispatcher) {
+        safeApiCall {
             api.getReleaseGroups(artistMbid = mbid)
                 .releaseGroups
                 .map { it.toDomain() }
